@@ -27,9 +27,9 @@
                             <option value="gagal">Gagal</option>
                         </select>
 
-                        <button class="btn btn-outline-secondary">
+                        {{-- <button class="btn btn-outline-secondary">
                             <i class="bi bi-download me-1"></i> Export
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>

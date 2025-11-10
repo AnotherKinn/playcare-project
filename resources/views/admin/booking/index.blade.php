@@ -58,7 +58,7 @@
                         <div class="card text-center shadow-sm border-0">
                             <div class="card-body">
                                 <h6 class="text-muted mb-1">Selesai</h6>
-                                <h4 class="fw-bold text-secondary">{{ $stats['finished'] }}</h4>
+                                <h4 class="fw-bold text-secondary">{{ $stats['completed'] }}</h4>
                             </div>
                         </div>
                     </div>
@@ -100,12 +100,15 @@
                                     <td>{{ $b->duration_hours }} Jam</td>
                                     <td><span class="badge {{ $badge }}">{{ $b->status }}</span></td>
                                     <td>Rp {{ number_format($b->total_price, 0, ',', '.') }}</td>
-                                    <td>{{ optional($b->transaction?->paid_at)->format('Y-m-d') ?? '-' }}</td>
+                                    <td>{{ optional($b->transaction?->created_at)->format('Y-m-d') ?? '-' }}</td>
                                     <td>
-                                        @if ($b->transaction && $b->transaction->proof)
-                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                                            data-bs-target="#modalBukti"
-                                            data-proof="{{ $b->transaction->proof }}">Lihat</button>
+                                        @if ($b->transaction && $b->transaction->payment_proof)
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                            data-bs-target="#modalBukti" data-img="{{ $b->proof_url }}">
+                                            Lihat Bukti
+                                        </button>
+
+
                                         @else
                                         <span class="text-muted">Tidak ada</span>
                                         @endif
@@ -158,10 +161,12 @@
                             <p class="mb-1"><strong>Tanggal Transaksi:</strong>
                                 {{ optional($b->transaction?->paid_at)->format('Y-m-d') ?? '-' }}</p>
                             <p class="mb-1"><strong>Bukti:</strong>
-                                @if ($b->transaction && $b->transaction->proof)
-                                <button class="btn btn-sm btn-outline-primary w-100 mb-1" data-bs-toggle="modal"
-                                    data-bs-target="#modalBukti"
-                                    data-proof="{{ $b->transaction->proof }}">Lihat</button>
+                                @if ($b->transaction && $b->transaction->payment_proof)
+                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalBukti"
+                                    data-img="{{ $b->proof_url }}">
+                                    Lihat Bukti
+                                </button>
+
                                 @else
                                 <span class="text-muted">Tidak ada</span>
                                 @endif
@@ -189,3 +194,49 @@
         </div>
     </div>
 </x-app-layout>
+
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{{-- ✅ Notifikasi Sukses --}}
+@if (session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: "{{ session('success') }}",
+        showConfirmButton: false,
+        timer: 1800
+    });
+
+</script>
+@endif
+
+{{-- ⚠️ Konfirmasi Hapus Data --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteForms = document.querySelectorAll('form[data-confirm]');
+
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Yakin mau hapus?',
+                    text: 'Data anak ini akan dihapus secara permanen!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+
+</script>

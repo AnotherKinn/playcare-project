@@ -37,8 +37,8 @@
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <form action="{{ route('parent.data-children.destroy', $child->id) }}" method="POST"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Yakin ingin menghapus data anak ini?')">
+                                        class="d-inline" data-confirm="true">
+
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger">
@@ -93,4 +93,51 @@
             </div>
         </div>
     </div>
+
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- ✅ Notifikasi Sukses --}}
+    @if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 1800
+        });
+
+    </script>
+    @endif
+
+    {{-- ⚠️ Konfirmasi Hapus Data --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteForms = document.querySelectorAll('form[data-confirm]');
+
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: 'Yakin mau hapus?',
+                        text: 'Data anak ini akan dihapus secara permanen!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+
+    </script>
+
 </x-app-layout>

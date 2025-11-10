@@ -2,23 +2,145 @@
 
 namespace App\Http\Controllers\Staff;
 
+use App\Events\ChildReportSubmitted;
 use App\Http\Controllers\Controller;
+use App\Models\Report;
+use App\Models\Booking;
+use App\Models\Child;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        return view('staff.report.index');
+        // Ambil anak yang booking-nya sedang in_progress
+        $children = Child::whereHas('bookings', function ($q) {
+            $q->where('status', 'in_progress');
+        })->get();
+
+        // Ambil semua laporan oleh staff login
+        $reports = Report::with(['child', 'booking'])
+            ->where('staff_id', Auth::id())
+            ->latest()
+            ->get();
+
+        // buatkan url foto seperti di BookingController
+        foreach ($reports as $r) {
+            $r->photo_url = $r->photo
+                ? Storage::url($r->photo)
+                : null;
+        }
+
+        return view('staff.report.index', compact('reports', 'children'));
     }
+
 
     public function create()
     {
-        return view('staff.report.create');
+        // Ambil anak-anak yang sedang ditugaskan ke staff login
+        // dan memiliki booking dengan status 'approved'
+        $children = Child::whereHas('bookings', function ($q) {
+            $q->where('status', 'assigned')
+                ->where('staff_id', Auth::id());
+        })->get();
+
+        return view('staff.report.create', compact('children'));
     }
+
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'child_id' => 'required|exists:children,id',
+            'meals' => 'nullable|string',
+            'sleep' => 'nullable|string',
+            'activities' => 'required|string',
+            'notes' => 'nullable|string',
+            'photo' => 'nullable|image|max:2048'
+        ]);
+
+        $booking = Booking::where('child_id', $validated['child_id'])
+            ->where('staff_id', Auth::id())
+            ->where('status', 'assigned')
+            ->first();
+
+        if (!$booking) {
+            return redirect()->back()->with('error', 'Booking anak ini tidak ditemukan atau belum disetujui.');
+        }
+
+        $report = new Report();
+        $report->child_id = $validated['child_id'];
+        $report->booking_id = $booking->id;
+        $report->staff_id = Auth::id();
+        $report->meals = $validated['meals'] ?? null;
+        $report->sleep = $validated['sleep'] ?? null;
+        $report->activities = $validated['activities'];
+        $report->notes = $validated['notes'] ?? null;
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('report_photos', 'public');
+            $report->photo = $path;
+        }
+
+        $report->save();
+
+        // ✅ Trigger Event untuk admin
+        event(new ChildReportSubmitted($report));
+
+        return redirect()->route('staff.report.index')->with('success', 'Laporan berhasil ditambahkan!');
+    }
+
 
     public function edit($id)
     {
-        return view('staff.report.edit');
+        $report = Report::findOrFail($id);
+        return view('staff.report.edit', compact('report'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $report = Report::findOrFail($id);
+
+        $validated = $request->validate([
+            'meals' => 'nullable|string',
+            'sleep' => 'nullable|string',
+            'activities' => 'required|string',
+            'notes' => 'nullable|string',
+            'photo' => 'nullable|image|max:2048'
+        ]);
+
+        $report->meals = $validated['meals'] ?? null;
+        $report->sleep = $validated['sleep'] ?? null;
+        $report->activities = $validated['activities'];
+        $report->notes = $validated['notes'] ?? null;
+
+        if ($request->hasFile('photo')) {
+            // hapus foto lama kalau ada
+            if ($report->photo && Storage::disk('public')->exists($report->photo)) {
+                Storage::disk('public')->delete($report->photo);
+            }
+
+            $path = $request->file('photo')->store('report_photos', 'public');
+            $report->photo = $path;
+        }
+
+        $report->save();
+
+        return redirect()->route('staff.report.index')->with('success', 'Laporan berhasil diperbarui!');
+    }
+
+    public function destroy($id)
+    {
+        $report = Report::findOrFail($id);
+
+        if ($report->photo && Storage::disk('public')->exists($report->photo)) {
+            Storage::disk('public')->delete($report->photo);
+        }
+
+        $report->delete();
+
+        return redirect()->back()->with('success', 'Laporan berhasil dihapus!');
     }
 }

@@ -1,12 +1,11 @@
-<!-- resources/views/staff/profile-edit.blade.php -->
 <x-app-layout>
     <div class="container py-4">
 
         {{-- Header --}}
         <div class="card shadow-sm mb-4 border-0">
             <div class="card-body d-flex align-items-center">
-                <img
-                    src="https://via.placeholder.com/100"
+            <img
+                    src="https://ui-avatars.com/api/?name={{ urlencode($staff->name) }}"
                     class="rounded-circle me-3"
                     alt="Foto Profil"
                     width="100" height="100">
@@ -18,7 +17,7 @@
         </div>
 
         {{-- Form Edit Profil --}}
-        <form method="POST" action="#" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('staff.profile.update', $staff->id) }}">
             @csrf
             @method('PUT')
 
@@ -28,45 +27,20 @@
                     <i class="bi bi-person-badge me-2"></i> Informasi Pribadi
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label for="photo" class="form-label fw-semibold">Foto Profil</label><br>
-                        <img src="https://via.placeholder.com/100" alt="Preview" class="rounded-circle mb-2" width="100" height="100">
-                        <input type="file" class="form-control" id="photo" name="photo">
-                    </div>
-
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control" value="Rina Hartati">
+                            <input type="text" name="name" class="form-control" value="{{ old('name', $staff->name) }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Jabatan</label>
-                            <input type="text" name="position" class="form-control" value="Pengasuh Anak">
+                            <label class="form-label fw-semibold">Nomor Telepon</label>
+                            <input type="text" name="phone" class="form-control" value="{{ old('phone', $staff->phone) }}">
                         </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Jenis Kelamin</label>
-                            <select name="gender" class="form-select">
-                                <option selected>Perempuan</option>
-                                <option>Laki-laki</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Tanggal Lahir</label>
-                            <input type="date" name="birth_date" class="form-control" value="1998-03-12">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">No. Telepon</label>
-                        <input type="text" name="phone" class="form-control" value="0812-3456-7890">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Alamat</label>
-                        <textarea name="address" class="form-control" rows="3">Jl. Melati No. 45, Bandung</textarea>
+                        <textarea name="address" class="form-control" rows="3">{{ old('address', $staff->address) }}</textarea>
                     </div>
                 </div>
             </div>
@@ -80,23 +54,19 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Email</label>
-                            <input type="email" name="email" class="form-control" value="rina.hartati@playcare.com">
+                            <input type="email" name="email" class="form-control" value="{{ old('email', $staff->email) }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Username</label>
-                            <input type="text" name="username" class="form-control" value="rinahartati98">
+                            <label class="form-label fw-semibold">Password Baru</label>
+                            <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah password">
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password Baru</label>
-                        <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah password">
                     </div>
                 </div>
             </div>
 
             {{-- Tombol Aksi --}}
             <div class="d-flex justify-content-between">
-                <a href="#" class="btn btn-outline-secondary">
+                <a href="{{ route('staff.profile.index') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left-circle"></i> Batal
                 </a>
                 <button type="submit" class="btn btn-primary">

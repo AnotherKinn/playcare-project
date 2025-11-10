@@ -8,6 +8,7 @@ use App\Models\Child;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -15,7 +16,8 @@ class BookingController extends Controller
     {
         $bookings = Booking::with('child')
             ->where('parent_id', Auth::id())
-            ->get();
+            ->latest()
+            ->paginate(10);
 
         return view('parent.booking.index', compact('bookings'));
     }
@@ -30,44 +32,55 @@ class BookingController extends Controller
     {
         $request->validate([
             'child_id' => 'required|exists:children,id',
-            'service_type' => 'required|in:full_day,half_day,playground',
+            'time_type' => 'required|in:per_jam,per_hari,per_bulan',
             'booking_date' => 'required|date',
-            'duration_hours' => 'required|integer|min:1',
+            'duration' => 'nullable|integer|min:1',
             'notes' => 'nullable|string',
         ]);
 
-        // 💰 Logika harga booking
-        $hourlyRate = 25000;
-        $fullDayRate = 180000;
+        // 💰 Tarif baru
+        $perHourRate = 50000;
+        $perDayRate = 200000;
+        $perMonthRate = 2250000;
 
-        if ($request->duration_hours < 24) {
-            $totalPrice = $request->duration_hours * $hourlyRate;
-        } elseif ($request->duration_hours == 24) {
-            $totalPrice = $fullDayRate;
-        } else {
-            $extraHours = $request->duration_hours - 24;
-            $totalPrice = $fullDayRate + ($extraHours * $hourlyRate);
+        // 🔢 Hitung total harga
+        switch ($request->time_type) {
+            case 'per_jam':
+                $totalPrice = $request->duration * $perHourRate;
+                break;
+            case 'per_hari':
+                $totalPrice = $perDayRate;
+                break;
+            case 'per_bulan':
+                $totalPrice = $perMonthRate;
+                break;
+            default:
+                $totalPrice = 0;
+                break;
         }
 
-        // 🧾 Buat booking
+        // 🧾 Buat booking baru
         $booking = Booking::create([
             'parent_id' => Auth::id(),
             'child_id' => $request->child_id,
-            'service_type' => $request->service_type,
-            'duration_hours' => $request->duration_hours,
+            'time_type' => $request->time_type,
+            'duration' => $request->duration,
             'booking_date' => $request->booking_date,
             'notes' => $request->notes,
             'total_price' => $totalPrice,
-            'status' => 'menunggu',
+            'status' => 'pending',
         ]);
 
-        // 💳 Buat transaksi dengan status pending
-        $transaction = Transaction::create([
+        // 💳 Buat transaksi otomatis
+        Transaction::create([
             'booking_id' => $booking->id,
-            'payment_method' => null, // dipilih nanti di halaman pembayaran
+            'user_id' => Auth::id(),
+            'payment_method' => null,
             'amount' => $totalPrice,
             'status' => 'pending',
         ]);
+
+        Log::info('Booking baru dibuat berdasarkan sistem waktu.');
 
         return redirect()->route('parent.payments.create', ['booking_id' => $booking->id])
             ->with('success', 'Booking berhasil dibuat. Silakan lanjut ke pembayaran.');
@@ -86,35 +99,41 @@ class BookingController extends Controller
 
     public function update(Request $request, $id)
     {
-        $booking = Booking::with('child')
-            ->where('parent_id', Auth::id())
-            ->findOrFail($id);
+        $booking = Booking::where('parent_id', Auth::id())->findOrFail($id);
 
         $request->validate([
             'child_id' => 'required|exists:children,id',
-            'service_type' => 'required|in:full_day,half_day,playground',
+            'time_type' => 'required|in:per_jam,per_hari,per_bulan',
             'booking_date' => 'required|date',
-            'duration_hours' => 'required|integer|min:1',
+            'duration' => 'nullable|integer|min:1',
             'notes' => 'nullable|string',
         ]);
 
-        // 💰 Logika harga booking (sama seperti di store)
-        $hourlyRate = 25000;
-        $fullDayRate = 180000;
+        // 💰 Tarif baru
+        $perHourRate = 50000;
+        $perDayRate = 200000;
+        $perMonthRate = 2250000;
 
-        if ($request->duration_hours < 24) {
-            $totalPrice = $request->duration_hours * $hourlyRate;
-        } elseif ($request->duration_hours == 24) {
-            $totalPrice = $fullDayRate;
-        } else {
-            $extraHours = $request->duration_hours - 24;
-            $totalPrice = $fullDayRate + ($extraHours * $hourlyRate);
+        // 🔢 Hitung ulang harga
+        switch ($request->time_type) {
+            case 'per_jam':
+                $totalPrice = $request->duration * $perHourRate;
+                break;
+            case 'per_hari':
+                $totalPrice = $perDayRate;
+                break;
+            case 'per_bulan':
+                $totalPrice = $perMonthRate;
+                break;
+            default:
+                $totalPrice = 0;
+                break;
         }
 
         $booking->update([
             'child_id' => $request->child_id,
-            'service_type' => $request->service_type,
-            'duration_hours' => $request->duration_hours,
+            'time_type' => $request->time_type,
+            'duration' => $request->duration,
             'booking_date' => $request->booking_date,
             'notes' => $request->notes,
             'total_price' => $totalPrice,
@@ -126,10 +145,7 @@ class BookingController extends Controller
 
     public function destroy($id)
     {
-        $booking = Booking::with('child')
-            ->where('parent_id', Auth::id())
-            ->findOrFail($id);
-
+        $booking = Booking::where('parent_id', Auth::id())->findOrFail($id);
         $booking->delete();
 
         return redirect()->route('parent.booking.index')

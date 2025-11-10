@@ -15,28 +15,32 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Jenis Layanan</label>
-                            <select name="service_type" class="form-select" required>
-                                <option value="">Pilih Layanan</option>
-                                <option value="full_day">Full Day</option>
-                                <option value="half_day">Half Day</option>
-                                <option value="playground">Playground</option>
+                            <label class="form-label fw-semibold">Kategori Feedback</label>
+                            <select name="feedback_category" class="form-select" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Pelayanan">Pelayanan</option>
+                                <option value="Kebersihan">Kebersihan</option>
+                                <option value="Keamanan">Keamanan</option>
+                                <option value="Kenyamanan">Kenyamanan</option>
+                                <option value="Fasilitas">Fasilitas</option>
                             </select>
                         </div>
+
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Rating</label>
                             <select name="rating" class="form-select" required>
                                 <option value="">Pilih Rating</option>
                                 @for ($i = 5; $i >= 1; $i--)
-                                    <option value="{{ $i }}">{{ str_repeat('⭐', $i) }} ({{ $i }})</option>
+                                <option value="{{ $i }}">{{ str_repeat('⭐', $i) }} ({{ $i }})</option>
                                 @endfor
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Komentar</label>
-                            <textarea name="comment" class="form-control" rows="4" placeholder="Tulis ulasan Anda di sini..." required></textarea>
+                            <textarea name="comment" class="form-control" rows="4"
+                                placeholder="Tulis ulasan Anda di sini..." required></textarea>
                         </div>
 
                         <div class="text-end">

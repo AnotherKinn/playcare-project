@@ -5,7 +5,7 @@
                 <i class="bi bi-pencil-square me-2"></i> Edit Profil
             </div>
             <div class="card-body">
-                <form action="{{ route('parent.profile.update') }}" method="POST">
+                <form action="{{ route('parent.profile.update') }}" method="POST" enctype="multipart/form-data">
                     @method('PUT')
                     @csrf
 

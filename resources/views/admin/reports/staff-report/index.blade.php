@@ -2,57 +2,74 @@
     <div class="container py-4">
         <h3 class="fw-bold text-primary mb-4">📋 Laporan Staff</h3>
 
-        @php
-            $dummyStaffReports = [
-                ['staff'=>'Dian', 'anak'=>'Alya', 'tanggal'=>'2025-10-20', 'catatan'=>'Aktif bermain', 'status'=>'Selesai'],
-                ['staff'=>'Rina', 'anak'=>'Bimo', 'tanggal'=>'2025-10-21', 'catatan'=>'Sedikit rewel', 'status'=>'Perlu Tindak Lanjut'],
-                ['staff'=>'Dian', 'anak'=>'Cahya', 'tanggal'=>'2025-10-22', 'catatan'=>'Tidur siang nyaman', 'status'=>'Selesai'],
-                ['staff'=>'Tina', 'anak'=>'Daffa', 'tanggal'=>'2025-10-23', 'catatan'=>'Senang belajar lagu', 'status'=>'Selesai'],
-                ['staff'=>'Rina', 'anak'=>'Eka', 'tanggal'=>'2025-10-24', 'catatan'=>'Perlu perhatian ekstra', 'status'=>'Perlu Tindak Lanjut'],
-            ];
-        @endphp
-
         <!-- Desktop Table -->
         <div class="table-responsive d-none d-md-block">
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>Staff</th>
-                        <th>Anak</th>
+                        <th>Nama Staff</th>
+                        <th>Nama Anak</th>
                         <th>Tanggal</th>
-                        <th>Kondisi / Catatan</th>
+                        <th>Aktivitas</th>
+                        <th>Kondisi Anak</th>
+                        <th>Makanan</th>
+                        <th>Durasi Tidur</th>
+                        <th>Catatan</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($dummyStaffReports as $index => $report)
+                    @forelse($staffReports as $index => $report)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $report['staff'] }}</td>
-                            <td>{{ $report['anak'] }}</td>
-                            <td>{{ $report['tanggal'] }}</td>
-                            <td>{{ $report['catatan'] }}</td>
-                            <td>{{ $report['status'] }}</td>
+                            <td>{{ $report->staff->name ?? '-' }}</td>
+                            <td>{{ $report->booking->child_name ?? '-' }}</td>
+                            <td>{{ $report->report_date->format('d M Y') }}</td>
+                            <td>{{ $report->activity ?? '-' }}</td>
+                            <td>{{ $report->child_condition_label }}</td>
+                            <td>{{ $report->meal ?? '-' }}</td>
+                            <td>{{ $report->sleep_duration ?? '-' }}</td>
+                            <td>{{ $report->notes ?? '-' }}</td>
+                            <td>
+                                <span class="badge
+                                    @if($report->status === 'CP') bg-success
+                                    @elseif($report->status === 'NF') bg-warning
+                                    @elseif($report->status === 'PR') bg-secondary
+                                    @else bg-info @endif
+                                ">
+                                    {{ $report->status_label }}
+                                </span>
+                            </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">No staff reports found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <!-- Mobile Card -->
         <div class="d-block d-md-none">
-            @foreach($dummyStaffReports as $index => $report)
+            @forelse($staffReports as $index => $report)
                 <div class="card mb-3 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">#{{ $index + 1 }} {{ $report['anak'] }}</h5>
-                        <p class="mb-1"><strong>Staff:</strong> {{ $report['staff'] }}</p>
-                        <p class="mb-1"><strong>Tanggal:</strong> {{ $report['tanggal'] }}</p>
-                        <p class="mb-1"><strong>Catatan:</strong> {{ $report['catatan'] }}</p>
-                        <p class="mb-0"><strong>Status:</strong> {{ $report['status'] }}</p>
+                        <h5 class="card-title">#{{ $index + 1 }} {{ $report->booking->child_name ?? '-' }}</h5>
+                        <p><strong>Nama Staff:</strong> {{ $report->staff->name ?? '-' }}</p>
+                        <p><strong>Tanggal:</strong> {{ $report->report_date->format('d M Y') }}</p>
+                        <p><strong>Aktivitas Anak:</strong> {{ $report->activity ?? '-' }}</p>
+                        <p><strong>Kondisi:</strong> {{ $report->child_condition_label }}</p>
+                        <p><strong>Makanan:</strong> {{ $report->meal ?? '-' }}</p>
+                        <p><strong>Durasi Tidur:</strong> {{ $report->sleep_duration ?? '-' }}</p>
+                        <p><strong>Catatan:</strong> {{ $report->notes ?? '-' }}</p>
+                        <p><strong>Status:</strong> {{ $report->status_label }}</p>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <p class="text-center text-muted">No staff reports found.</p>
+            @endforelse
         </div>
     </div>
 </x-app-layout>

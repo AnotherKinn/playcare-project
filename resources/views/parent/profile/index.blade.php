@@ -4,11 +4,8 @@
         {{-- Header --}}
         <div class="card shadow-sm mb-4 border-0">
             <div class="card-body d-flex align-items-center">
-                <img
-                    src="{{ $user->photo ? asset('storage/' . $user->photo) : 'https://via.placeholder.com/100' }}"
-                    class="rounded-circle me-3"
-                    alt="Foto Profil"
-                    width="100" height="100">
+                <img src="{{ $user->photo ? asset('storage/' . $user->photo) : 'https://via.placeholder.com/100' }}"
+                    class="rounded-circle me-3" alt="Foto Profil" width="100" height="100">
                 <div class="flex-grow-1">
                     <h4 class="fw-bold mb-0">{{ $user->name }}</h4>
                     <p class="text-muted mb-1">
@@ -78,12 +75,9 @@
                 <i class="bi bi-box-arrow-left me-2"></i> Logout Akun
             </div>
             <div class="card-body">
-                {{-- <a href="#" class="btn btn-outline-primary me-2">
-                    <i class="bi bi-key-fill"></i> Ganti Password
-                </a> --}}
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                <form method="POST" action="{{ route('logout') }}" id="logout-form" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-outline-danger">
+                    <button type="button" id="logout-btn" class="btn btn-outline-danger">
                         <i class="bi bi-box-arrow-left"></i> Logout
                     </button>
                 </form>
@@ -91,4 +85,40 @@
         </div>
 
     </div>
+
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- ✅ Notifikasi Sukses --}}
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 1800
+            });
+        </script>
+    @endif
+
+    {{-- ⚠️ Konfirmasi Logout --}}
+    <script>
+        document.getElementById('logout-btn').addEventListener('click', function (e) {
+            Swal.fire({
+                title: 'Yakin mau logout?',
+                text: "Kamu akan keluar dari akun ini.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, logout!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        });
+    </script>
 </x-app-layout>

@@ -14,7 +14,7 @@ class Report extends Model
 
     protected $fillable = [
         'child_id', 'booking_id', 'staff_id', 'meals',
-        'sleep', 'activities', 'notes', 'approved_by', 'approved_at'
+        'sleep', 'activities', 'notes', 'photo','approved_by', 'approved_at'
     ];
 
     public function child() {

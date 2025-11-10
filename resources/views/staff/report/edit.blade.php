@@ -1,46 +1,46 @@
 <x-app-layout>
     <div class="container py-4">
-        <h3 class="fw-bold text-primary mb-4">✏️ Edit Laporan Aktivitas</h3>
+        <h3 class="fw-bold text-secondary mb-4">✏️ Edit Laporan</h3>
 
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <form>
-                    {{-- Booking (readonly karena tidak bisa diubah) --}}
-                    <div class="mb-3">
-                        <label for="booking" class="form-label fw-semibold">Booking</label>
-                        <input type="text" id="booking" class="form-control" value="Alya - Playground (Completed)" readonly>
-                    </div>
+        <form action="{{ route('staff.report.update', $report->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
 
-                    {{-- Aktivitas --}}
-                    <div class="mb-3">
-                        <label for="aktivitas" class="form-label fw-semibold">Aktivitas</label>
-                        <textarea id="aktivitas" class="form-control" rows="4">Bermain balok dan menggambar bersama teman-teman.</textarea>
-                    </div>
-
-                    {{-- Kondisi Anak --}}
-                    <div class="mb-3">
-                        <label for="kondisi" class="form-label fw-semibold">Kondisi Anak</label>
-                        <select id="kondisi" class="form-select">
-                            <option value="Baik" selected>Baik</option>
-                            <option value="Rewel">Rewel</option>
-                            <option value="Sakit">Sakit</option>
-                        </select>
-                    </div>
-
-                    {{-- Foto --}}
-                    <div class="mb-3">
-                        <label for="foto" class="form-label fw-semibold">Foto Aktivitas (Opsional)</label>
-                        <input type="file" class="form-control" id="foto" accept="image/*">
-                        <small class="text-muted">Biarkan kosong jika tidak ingin mengubah foto.</small>
-                    </div>
-
-                    {{-- Tombol --}}
-                    <div class="text-end">
-                        <a href="{{ route('staff.report.index') }}" class="btn btn-secondary">Kembali</a>
-                        <button type="submit" class="btn btn-success">Perbarui</button>
-                    </div>
-                </form>
+            <div class="mb-3">
+                <label for="meals" class="form-label">Kegiatan Makan</label>
+                <textarea name="meals" id="meals" class="form-control" rows="2">{{ $report->meals }}</textarea>
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label for="sleep" class="form-label">Kegiatan Tidur</label>
+                <textarea name="sleep" id="sleep" class="form-control" rows="2">{{ $report->sleep }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="activities" class="form-label">Aktivitas</label>
+                <textarea name="activities" id="activities" class="form-control" rows="3" required>{{ $report->activities }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="notes" class="form-label">Catatan</label>
+                <textarea name="notes" id="notes" class="form-control" rows="2">{{ $report->notes }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="photo" class="form-label">Ganti Foto (Opsional)</label>
+                <input type="file" class="form-control" name="photo" id="photo" accept="image/*">
+
+                @if ($report->photo)
+                    <div class="mt-2">
+                        <img src="{{ asset('storage/' . $report->photo) }}" width="120" class="rounded shadow-sm">
+                    </div>
+                @endif
+            </div>
+
+            <div class="text-end">
+                <a href="{{ route('staff.report.index') }}" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+            </div>
+        </form>
     </div>
 </x-app-layout>

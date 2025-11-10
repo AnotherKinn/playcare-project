@@ -6,13 +6,36 @@
     <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center mb-3 text-decoration-none">
         <span class="fs-4 fw-bold text-primary">🛠️ PlayCare Admin</span>
     </a>
+
+    <!-- Navbar Mini untuk Notifikasi -->
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+        <a href="{{ route('admin.notifications.index') }}" class="text-decoration-none position-relative">
+            <i class="bi bi-bell fs-4 text-primary"></i>
+
+            {{-- Badge Notifikasi --}}
+
+
+            @if($notifCount > 0)
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ $notifCount }}
+            </span>
+            @endif
+
+        </a>
+
+        <a href="{{ route('admin.notifications.index') }}" class="small text-muted">
+            Lihat Semua
+        </a>
+    </div>
+
+
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
 
         {{-- Dashboard --}}
         <li class="nav-item">
             <a href="{{ route('admin.dashboard') }}"
-               class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
         </li>
@@ -20,7 +43,7 @@
         {{-- Manajemen Booking --}}
         <li>
             <a href="{{ route('admin.booking.index') }}"
-               class="nav-link {{ request()->routeIs('admin.bookings.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.bookings.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-calendar-check me-2"></i> Booking
             </a>
         </li>
@@ -28,7 +51,7 @@
         {{-- Staff --}}
         <li>
             <a href="{{ route('admin.data-staff.index') }}"
-               class="nav-link {{ request()->routeIs('admin.staff.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.staff.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-person-badge me-2"></i> Staff
             </a>
         </li>
@@ -36,7 +59,7 @@
         {{-- Parent --}}
         <li>
             <a href="{{ route('admin.data-parent.index') }}"
-               class="nav-link {{ request()->routeIs('admin.parents.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.parents.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-people me-2"></i> Parent
             </a>
         </li>
@@ -44,7 +67,7 @@
         {{-- Transaksi --}}
         <li>
             <a href="{{ route('admin.transaction.index') }}"
-               class="nav-link {{ request()->routeIs('admin.transactions.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.transactions.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-wallet2 me-2"></i> Transaksi
             </a>
         </li>
@@ -52,7 +75,7 @@
         {{-- Laporan --}}
         <li>
             <a href="{{ route('admin.report.index') }}"
-               class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-bar-chart-line me-2"></i> Laporan
             </a>
         </li>
@@ -69,7 +92,7 @@
 
 <!-- Tombol Hamburger untuk Mobile -->
 <div class="d-md-none bg-white border-bottom shadow-sm p-2 d-flex align-items-center position-fixed top-0 start-0 w-100"
-     style="z-index: 1040; height: 56px;">
+    style="z-index: 1040; height: 56px;">
     <button class="btn btn-outline-primary me-2 ms-2" type="button" data-bs-toggle="offcanvas"
         data-bs-target="#offcanvasSidebarAdmin" aria-controls="offcanvasSidebarAdmin">
         <i class="bi bi-list fs-4"></i>
@@ -93,15 +116,20 @@
         <ul class="nav nav-pills flex-column mb-auto px-3">
             <li class="nav-item">
                 <a href="{{ route('admin.dashboard') }}"
-                   class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active bg-primary text-white' : 'text-dark' }}">
+                    class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active bg-primary text-white' : 'text-dark' }}">
                     <i class="bi bi-house-door me-2"></i> Dashboard
                 </a>
             </li>
-            <li><a href="{{ route('admin.booking.index') }}" class="nav-link text-dark"><i class="bi bi-calendar-check me-2"></i> Booking</a></li>
-            <li><a href="{{ route('admin.data-staff.index')}}" class="nav-link text-dark"><i class="bi bi-person-badge me-2"></i> Staff</a></li>
-            <li><a href="{{ route('admin.data-parent.index') }}" class="nav-link text-dark"><i class="bi bi-people me-2"></i> Parent</a></li>
-            <li><a href="{{ route('admin.transaction.index')}}" class="nav-link text-dark"><i class="bi bi-wallet2 me-2"></i> Transaksi</a></li>
-            <li><a href="{{ route('admin.report.index') }}" class="nav-link text-dark"><i class="bi bi-bar-chart-line me-2"></i> Laporan</a></li>
+            <li><a href="{{ route('admin.booking.index') }}" class="nav-link text-dark"><i
+                        class="bi bi-calendar-check me-2"></i> Booking</a></li>
+            <li><a href="{{ route('admin.data-staff.index')}}" class="nav-link text-dark"><i
+                        class="bi bi-person-badge me-2"></i> Staff</a></li>
+            <li><a href="{{ route('admin.data-parent.index') }}" class="nav-link text-dark"><i
+                        class="bi bi-people me-2"></i> Parent</a></li>
+            <li><a href="{{ route('admin.transaction.index')}}" class="nav-link text-dark"><i
+                        class="bi bi-wallet2 me-2"></i> Transaksi</a></li>
+            <li><a href="{{ route('admin.report.index') }}" class="nav-link text-dark"><i
+                        class="bi bi-bar-chart-line me-2"></i> Laporan</a></li>
         </ul>
 
         <hr class="mt-3 mb-2">

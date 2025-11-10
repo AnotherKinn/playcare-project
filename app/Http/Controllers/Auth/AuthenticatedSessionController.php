@@ -29,8 +29,23 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+        // Cek apakah email terdaftar
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return back()->with('loginError', 'Email belum terdaftar. Silakan daftar terlebih dahulu ya 😊');
+        }
+
+        // Jika email ada tapi password salah
+        if (! \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return back()->with('loginError', 'Password yang kamu masukkan salah, coba lagi ya 😅');
+        }
+
+        // Kalau semuanya benar, login
+        if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            $user = \Illuminate\Support\Facades\Auth::user();
 
             return match ($user->role) {
                 'admin' => redirect()->route('admin.dashboard'),
@@ -40,10 +55,10 @@ class AuthenticatedSessionController extends Controller
             };
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ]);
+        // Fallback (jarang terjadi)
+        return back()->with('loginError', 'Terjadi kesalahan saat login, coba beberapa saat lagi.');
     }
+
 
 
     /**

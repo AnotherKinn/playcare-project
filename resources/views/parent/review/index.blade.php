@@ -25,7 +25,7 @@
                             <div class="card shadow-sm border-0 rounded-4 h-100">
                                 <div class="card-body">
                                     <h5 class="fw-bold text-primary mb-2">
-                                        {{ ucfirst(str_replace('_', ' ', $review->service_type)) }}
+                                        {{ ucfirst(str_replace('_', ' ', $review->feedback_category)) }}
                                     </h5>
                                     <p class="text-muted small mb-1">
                                         <i class="bi bi-calendar"></i> {{ $review->created_at->translatedFormat('d F Y') }}
@@ -43,7 +43,8 @@
                                         <a href="{{ route('parent.review.edit', $review->id) }}" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-pencil"></i> Edit
                                         </a>
-                                        <form action="{{ route('parent.review.destroy', $review->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus review ini?')">
+                                         <form action="{{ route('parent.review.destroy', $review->id) }}" method="POST"
+                                        class="d-inline" data-confirm="true">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-outline-danger btn-sm">
@@ -59,4 +60,50 @@
             @endif
         </div>
     </div>
+
+        {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- ✅ Notifikasi Sukses --}}
+    @if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 1800
+        });
+
+    </script>
+    @endif
+
+    {{-- ⚠️ Konfirmasi Hapus Data --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteForms = document.querySelectorAll('form[data-confirm]');
+
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        title: 'Yakin mau hapus?',
+                        text: 'Data anak ini akan dihapus secara permanen!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+
+    </script>
 </x-app-layout>

@@ -33,12 +33,25 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8', // minimal 8 karakter
+                Rules\Password::defaults(),
+            ],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
+        ], [
+            'name.required' => 'Nama tidak boleh kosong!',
+            'email.required' => 'Email tidak boleh kosong!',
+            'email.email' => 'Format email tidak valid!',
+            'email.unique' => 'Email sudah digunakan!',
+            'password.required' => 'Password wajib diisi!',
+            'password.confirmed' => 'Konfirmasi password tidak cocok!',
+            'password.min' => 'Password minimal harus 8 karakter!',
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -47,8 +60,7 @@ class RegisteredUserController extends Controller
             'role' => 'parent',
         ]);
 
-        Auth::login($user);
-
-        return view('auth.login');
+        // Simpan notifikasi sukses ke session
+        return back()->with('success', 'Pendaftaran berhasil! Silakan login.');
     }
 }

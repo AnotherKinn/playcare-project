@@ -28,151 +28,141 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- Data Dummy --}}
-                    @php
-                        $tasks = [
-                            [
-                                'id' => 1,
-                                'nama_anak' => 'Aulia Putri',
-                                'umur' => '5 tahun',
-                                'layanan' => 'Daycare Full Day',
-                                'jadwal' => '28 Okt 2025, 08:00 - 16:00',
-                                'status' => 'Menunggu',
-                                'alergi' => 'Susu sapi',
-                                'catatan' => 'Suka bermain puzzle, moody saat bangun tidur',
-                            ],
-                            [
-                                'id' => 2,
-                                'nama_anak' => 'Rafi Ahmad',
-                                'umur' => '4 tahun',
-                                'layanan' => 'Playground',
-                                'jadwal' => '28 Okt 2025, 10:00 - 12:00',
-                                'status' => 'Berjalan',
-                                'alergi' => '-',
-                                'catatan' => 'Aktif, perlu pengawasan ekstra saat bermain air',
-                            ],
-                            [
-                                'id' => 3,
-                                'nama_anak' => 'Nayla Zahra',
-                                'umur' => '6 tahun',
-                                'layanan' => 'Daycare Half Day',
-                                'jadwal' => '27 Okt 2025, 08:00 - 12:00',
-                                'status' => 'Selesai',
-                                'alergi' => 'Udang',
-                                'catatan' => 'Sudah bisa membaca dasar',
-                            ],
-                        ];
-                    @endphp
+                    @forelse ($tasks as $index => $task)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $task->child->name }}</td>
+                        @if($task->service_type === 'full_day')
+                        <p>Full Day</td>
+                        @elseif($task->service_type === 'half_day')
+                        <td>Half Day</td>
+                        @elseif($task->service_type === 'playground')
+                        <td>Playground</td>
+                        @else
+                        <td>-</td>
+                        @endif
+                        <td>{{ \Carbon\Carbon::parse($task->booking_date)->translatedFormat('d M Y, H:i') }}</td>
+                        <td>
+                            @if ($task->status === 'assigned' || $task->status === 'pending')
+                            <span class="badge bg-warning text-dark">Menunggu</span>
+                            @elseif ($task->status === 'in_progress')
+                            <span class="badge bg-primary">Berjalan</span>
+                            @elseif ($task->status === 'completed')
+                            <span class="badge bg-success">Selesai</span>
+                            @else
+                            <span class="badge bg-secondary">{{ ucfirst($task->status) }}</span>
+                            @endif
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
+                                data-bs-target="#detailModal{{ $task->id }}">
+                                Detail
+                            </button>
 
-                    @foreach ($tasks as $index => $task)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $task['nama_anak'] }}</td>
-                            <td>{{ $task['layanan'] }}</td>
-                            <td>{{ $task['jadwal'] }}</td>
-                            <td>
-                                @if ($task['status'] === 'Menunggu')
-                                    <span class="badge bg-warning text-dark">Menunggu</span>
-                                @elseif ($task['status'] === 'Berjalan')
-                                    <span class="badge bg-primary">Berjalan</span>
-                                @else
-                                    <span class="badge bg-success">Selesai</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
-                                    data-bs-target="#detailModal{{ $task['id'] }}">
-                                    Detail
-                                </button>
+                            <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+                                data-bs-target="#editStatusModal{{ $task->id }}">
+                                Edit Status
+                            </button>
+                        </td>
+                    </tr>
 
-                                <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                    data-bs-target="#editStatusModal{{ $task['id'] }}">
-                                    Edit Status
-                                </button>
-                            </td>
-                        </tr>
-
-                        {{-- Modal Detail Anak --}}
-                        <div class="modal fade" id="detailModal{{ $task['id'] }}" tabindex="-1"
-                            aria-labelledby="detailModalLabel{{ $task['id'] }}" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title" id="detailModalLabel{{ $task['id'] }}">Detail Anak</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
+                    {{-- Modal Detail Anak --}}
+                    <div class="modal fade" id="detailModal{{ $task->id }}" tabindex="-1"
+                        aria-labelledby="detailModalLabel{{ $task->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="detailModalLabel{{ $task->id }}">Detail Anak</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <strong>Nama Anak:</strong>
+                                        <p>{{ $task->child->name }}</p>
                                     </div>
+                                    <div class="mb-3">
+                                        <strong>Umur:</strong>
+                                        <p>{{ $task->child->age }} tahun</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Jenis Layanan:</strong>
+                                        @if($task->service_type === 'full_day')
+                                        <p>Full Day</p>
+                                        @elseif($task->service_type === 'half_day')
+                                        <p>Half Day</p>
+                                        @elseif($task->service_type === 'playground')
+                                        <p>Playground</p>
+                                        @else
+                                        <p>-</p>
+                                        @endif
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Jadwal:</strong>
+                                        <p>{{ \Carbon\Carbon::parse($task->booking_date)->translatedFormat('d M Y, H:i') }}
+                                        </p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Alergi:</strong>
+                                        <p>{{ $task->child->allergy ?? '-' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Catatan Khusus:</strong>
+                                        <p>{{ $task->notes ?? '-' }}</p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Modal Edit Status --}}
+                    <div class="modal fade" id="editStatusModal{{ $task->id }}" tabindex="-1"
+                        aria-labelledby="editStatusLabel{{ $task->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header bg-secondary text-white">
+                                    <h5 class="modal-title" id="editStatusLabel{{ $task->id }}">Ubah Status Tugas</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form action="{{ route('staff.task.update-status', $task->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
                                     <div class="modal-body">
+                                        <p><strong>{{ $task->child->name }}</strong> — {{ $task->service_type }}</p>
                                         <div class="mb-3">
-                                            <strong>Nama Anak:</strong>
-                                            <p>{{ $task['nama_anak'] }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <strong>Umur:</strong>
-                                            <p>{{ $task['umur'] }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <strong>Jenis Layanan:</strong>
-                                            <p>{{ $task['layanan'] }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <strong>Jadwal:</strong>
-                                            <p>{{ $task['jadwal'] }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <strong>Alergi:</strong>
-                                            <p>{{ $task['alergi'] }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <strong>Catatan Khusus:</strong>
-                                            <p>{{ $task['catatan'] }}</p>
+                                            <label for="statusSelect{{ $task->id }}" class="form-label">Status
+                                                Baru</label>
+                                            <select id="statusSelect{{ $task->id }}" name="status" class="form-select">
+                                                <option value="in_progress"
+                                                    {{ $task->status === 'in_progress' ? 'selected' : '' }}>Berjalan
+                                                </option>
+                                                <option value="completed"
+                                                    {{ $task->status === 'completed' ? 'selected' : '' }}>Selesai
+                                                </option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
-
-                        {{-- Modal Edit Status --}}
-                        <div class="modal fade" id="editStatusModal{{ $task['id'] }}" tabindex="-1"
-                            aria-labelledby="editStatusLabel{{ $task['id'] }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-secondary text-white">
-                                        <h5 class="modal-title" id="editStatusLabel{{ $task['id'] }}">Ubah Status Tugas</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <form>
-                                        <div class="modal-body">
-                                            <p><strong>{{ $task['nama_anak'] }}</strong> — {{ $task['layanan'] }}</p>
-                                            <div class="mb-3">
-                                                <label for="statusSelect{{ $task['id'] }}" class="form-label">Status
-                                                    Baru</label>
-                                                <select id="statusSelect{{ $task['id'] }}" class="form-select">
-                                                    @if ($task['status'] === 'Menunggu')
-                                                        <option value="in_progress">Berjalan</option>
-                                                    @elseif ($task['status'] === 'Berjalan')
-                                                        <option value="completed">Selesai</option>
-                                                    @else
-                                                        <option disabled selected>Tugas Selesai</option>
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                data-bs-dismiss="modal">Batal</button>
-                                            <button type="submit" class="btn btn-primary">Simpan</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                    </div>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Belum ada tugas untuk saat ini.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
+
             </table>
         </div>
     </div>

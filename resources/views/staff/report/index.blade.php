@@ -5,9 +5,7 @@
 
         {{-- Tombol Tambah Laporan --}}
         <div class="mb-3 text-end">
-            <a href="{{ route('staff.report.create') }}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahLaporanModal">
-                ➕ Tambah Laporan
-            </a>
+            <a href="{{ route('staff.report.create') }}" class="btn btn-primary">➕ Tambah Laporan</a>
         </div>
 
         {{-- Filter Anak --}}
@@ -15,116 +13,92 @@
             <label for="filterAnak" class="form-label fw-semibold">Filter per Anak:</label>
             <select id="filterAnak" class="form-select" style="max-width: 300px;">
                 <option value="">Semua Anak</option>
-                <option value="1">Alya</option>
-                <option value="2">Dimas</option>
-                <option value="3">Rafi</option>
+                @foreach ($children as $child)
+                <option value="{{ $child->id }}">{{ $child->name }}</option>
+                @endforeach
             </select>
         </div>
 
-        {{-- Tabel Data Dummy --}}
+        {{-- Tabel Data --}}
         <div class="table-responsive">
             <table class="table table-bordered table-striped align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
                         <th>Nama Anak</th>
+                        <th>Makan</th>
+                        <th>Tidur</th>
                         <th>Aktivitas</th>
-                        <th>Kondisi</th>
+                        <th>Catatan</th>
                         <th>Tanggal</th>
                         <th>Status Verifikasi</th>
+                        <th>Foto</th> {{-- dipindah ke sini --}}
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse ($reports as $index => $report)
                     <tr>
-                        <td>1</td>
-                        <td>Alya</td>
-                        <td>Bermain balok dan menggambar bersama teman.</td>
-                        <td><span class="badge bg-success">Baik</span></td>
-                        <td>27 Okt 2025</td>
-                        <td><span class="badge bg-warning text-dark">Menunggu</span></td>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $report->child->name ?? '-' }}</td>
+                        <td>{{ $report->meals ?? '-' }}</td>
+                        <td>{{ $report->sleep ?? '-' }}</td>
+                        <td>{{ Str::limit($report->activities, 50) }}</td>
+                        <td>{{ $report->notes ?? '-' }}</td>
+                        <td>{{ $report->created_at->format('d M Y') }}</td>
                         <td>
-                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#previewLaporanModal">
+                            @if ($report->approved_at)
+                            <span class="badge bg-success">Terverifikasi</span>
+                            @else
+                            <span class="badge bg-warning text-dark">Menunggu</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($report->photo_url)
+                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
+                                data-bs-target="#fotoModal" data-photo="{{ $report->photo_url }}">
+                                📷 Lihat Foto
+                            </button>
+                            @else
+                            <span class="text-muted">Tidak ada</span>
+                            @endif
+                        </td>
+
+                        <td>
+                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
+                                data-bs-target="#previewLaporanModal" data-child="{{ $report->child->name ?? '-' }}"
+                                data-tanggal="{{ $report->created_at->format('d M Y') }}"
+                                data-meals="{{ $report->meals }}" data-sleep="{{ $report->sleep }}"
+                                data-activities="{{ $report->activities }}" data-notes="{{ $report->notes }}"
+                                data-photo="{{ $report->photo_url ?? '' }}">
                                 👁️ Preview
                             </button>
-                            <a href="{{ route('staff.report.edit', 1) }}" class="btn btn-sm btn-secondary">✏️ Edit</a>
-                            <button class="btn btn-sm btn-danger">🗑️ Hapus</button>
+
+                            <a href="{{ route('staff.report.edit', $report->id) }}" class="btn btn-sm btn-secondary">
+                                ✏️ Edit
+                            </a>
+                            <form action="{{ route('staff.report.destroy', $report->id) }}" method="POST"
+                                class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Hapus laporan ini?')">🗑️</button>
+                            </form>
                         </td>
                     </tr>
+                    @empty
                     <tr>
-                        <td>2</td>
-                        <td>Dimas</td>
-                        <td>Tidur siang selama 1 jam, lalu makan siang.</td>
-                        <td><span class="badge bg-success">Baik</span></td>
-                        <td>27 Okt 2025</td>
-                        <td><span class="badge bg-success">Terverifikasi</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#previewLaporanModal">
-                                👁️ Preview
-                            </button>
-                        </td>
+                        <td colspan="10" class="text-center">Belum ada laporan</td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 
-    {{-- Modal Tambah Laporan --}}
-    <div class="modal fade" id="tambahLaporanModal" tabindex="-1" aria-labelledby="tambahLaporanModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="tambahLaporanModalLabel">Tambah Laporan Aktivitas</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        {{-- Pilih Booking --}}
-                        <div class="mb-3">
-                            <label for="booking" class="form-label">Pilih Booking (Selesai)</label>
-                            <select id="booking" class="form-select" required>
-                                <option value="">-- Pilih Booking --</option>
-                                <option value="1">Alya - Playground (Completed)</option>
-                                <option value="2">Rafi - Full Day Care (Completed)</option>
-                            </select>
-                        </div>
-
-                        {{-- Aktivitas --}}
-                        <div class="mb-3">
-                            <label for="aktivitas" class="form-label">Aktivitas</label>
-                            <textarea id="aktivitas" class="form-control" rows="3" placeholder="Tulis deskripsi aktivitas anak..." required></textarea>
-                        </div>
-
-                        {{-- Kondisi Anak --}}
-                        <div class="mb-3">
-                            <label for="kondisi" class="form-label">Kondisi Anak</label>
-                            <select id="kondisi" class="form-select" required>
-                                <option value="">-- Pilih Kondisi --</option>
-                                <option value="Baik">Baik</option>
-                                <option value="Rewel">Rewel</option>
-                                <option value="Sakit">Sakit</option>
-                            </select>
-                        </div>
-
-                        {{-- Upload Foto --}}
-                        <div class="mb-3">
-                            <label for="foto" class="form-label">Upload Foto (Opsional)</label>
-                            <input type="file" class="form-control" id="foto" accept="image/*">
-                        </div>
-
-                        {{-- Tombol Simpan --}}
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- Modal Preview Laporan --}}
-    <div class="modal fade" id="previewLaporanModal" tabindex="-1" aria-labelledby="previewLaporanModalLabel" aria-hidden="true">
+    <div class="modal fade" id="previewLaporanModal" tabindex="-1" aria-labelledby="previewLaporanModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
@@ -132,21 +106,74 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <strong>Nama Anak:</strong> Alya <br>
-                        <strong>Tanggal:</strong> 27 Okt 2025 <br>
-                        <strong>Kondisi:</strong> <span class="badge bg-success">Baik</span>
-                    </div>
-                    <div class="mb-3">
-                        <strong>Aktivitas:</strong>
-                        <p>Bermain balok dan menggambar bersama teman-teman. Anak tampak ceria dan bersemangat.</p>
-                    </div>
-                    <div>
-                        <strong>Foto Aktivitas:</strong><br>
-                        <img src="https://via.placeholder.com/400x250.png?text=Foto+Aktivitas" alt="Foto Aktivitas" class="img-fluid rounded shadow-sm mt-2">
+                    <p><strong>Nama Anak:</strong> <span id="preview-nama-anak">-</span></p>
+                    <p><strong>Tanggal:</strong> <span id="preview-tanggal">-</span></p>
+                    <p><strong>Makan:</strong> <span id="preview-meals">-</span></p>
+                    <p><strong>Tidur:</strong> <span id="preview-sleep">-</span></p>
+                    <p><strong>Aktivitas:</strong></p>
+                    <p id="preview-activities">-</p>
+                    <p><strong>Catatan:</strong></p>
+                    <p id="preview-notes">-</p>
+                    <div id="preview-photo-wrapper" class="mt-3 text-center d-none">
+                        <img id="preview-photo" src="#" alt="Foto Aktivitas" class="img-fluid rounded shadow-sm">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Modal Lihat Foto --}}
+    <div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="fotoModalLabel">Foto Aktivitas</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modal-foto-img" src="#" alt="Foto Aktivitas" class="img-fluid rounded shadow-sm">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // === Preview Modal ===
+            const previewModal = document.getElementById('previewLaporanModal');
+            previewModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                document.getElementById('preview-nama-anak').textContent = button.dataset.child || '-';
+                document.getElementById('preview-tanggal').textContent = button.dataset.tanggal || '-';
+                document.getElementById('preview-meals').textContent = button.dataset.meals || '-';
+                document.getElementById('preview-sleep').textContent = button.dataset.sleep || '-';
+                document.getElementById('preview-activities').textContent = button.dataset.activities ||
+                    '-';
+                document.getElementById('preview-notes').textContent = button.dataset.notes || '-';
+
+                const photoUrl = button.dataset.photo;
+                const wrapper = document.getElementById('preview-photo-wrapper');
+                const img = document.getElementById('preview-photo');
+                if (photoUrl) {
+                    wrapper.classList.remove('d-none');
+                    img.src = photoUrl;
+                } else {
+                    wrapper.classList.add('d-none');
+                }
+            });
+
+            const fotoModal = document.getElementById('fotoModal');
+            fotoModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const img = document.getElementById('modal-foto-img');
+                const photoUrl = button.dataset.photo;
+                img.src = photoUrl;
+            });
+
+        });
+
+    </script>
+    @endpush
 </x-app-layout>

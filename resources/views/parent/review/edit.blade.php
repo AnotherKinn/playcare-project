@@ -16,28 +16,39 @@
                         @method('PUT')
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Jenis Layanan</label>
-                            <select name="service_type" class="form-select" required>
-                                <option value="full_day" {{ $review->service_type == 'full_day' ? 'selected' : '' }}>Full Day</option>
-                                <option value="half_day" {{ $review->service_type == 'half_day' ? 'selected' : '' }}>Half Day</option>
-                                <option value="playground" {{ $review->service_type == 'playground' ? 'selected' : '' }}>Playground</option>
+                            <label class="form-label fw-semibold">Kategori Feedback</label>
+                            <select name="feedback_category" class="form-select" required>
+                                <option value="Pelayanan"
+                                    {{ $review->feedback_category == 'Pelayanan' ? 'selected' : '' }}>Pelayanan</option>
+                                <option value="Kebersihan"
+                                    {{ $review->feedback_category == 'Kebersihan' ? 'selected' : '' }}>Kebersihan
+                                </option>
+                                <option value="Keamanan"
+                                    {{ $review->feedback_category == 'Keamanan' ? 'selected' : '' }}>Keamanan</option>
+                                <option value="Kenyamanan"
+                                    {{ $review->feedback_category == 'Kenyamanan' ? 'selected' : '' }}>Kenyamanan
+                                </option>
+                                <option value="Fasilitas"
+                                    {{ $review->feedback_category == 'Fasilitas' ? 'selected' : '' }}>Fasilitas</option>
                             </select>
                         </div>
+
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Rating</label>
                             <select name="rating" class="form-select" required>
                                 @for ($i = 5; $i >= 1; $i--)
-                                    <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>
-                                        {{ str_repeat('⭐', $i) }} ({{ $i }})
-                                    </option>
+                                <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>
+                                    {{ str_repeat('⭐', $i) }} ({{ $i }})
+                                </option>
                                 @endfor
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Komentar</label>
-                            <textarea name="comment" class="form-control" rows="4" required>{{ $review->comment }}</textarea>
+                            <textarea name="comment" class="form-control" rows="4"
+                                required>{{ $review->comment }}</textarea>
                         </div>
 
                         <div class="text-end">

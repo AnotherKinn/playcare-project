@@ -14,32 +14,49 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'parent_id', 'child_id', 'service_type', 'duration_hours',
-        'booking_date', 'notes', 'total_price', 'status'
+        'parent_id',
+        'child_id',
+        'time_type',
+        'duration',
+        'booking_date',
+        'notes',
+        'total_price',
+        'status'
     ];
 
-     protected $casts = [
+    protected $casts = [
         'date' => 'date',
         'booking_date' => 'datetime'
     ];
 
-    public function parent() {
+    public function parent()
+    {
         return $this->belongsTo(User::class, 'parent_id');
     }
 
-    public function child() {
+    public function child()
+    {
         return $this->belongsTo(Child::class);
     }
 
-    public function staff() {
+    public function staff()
+    {
         return $this->belongsTo(User::class, 'staff_id');
     }
 
-    public function transaction() {
+    public function assignedStaff()
+    {
+        return $this->belongsTo(User::class, 'staff_id');
+    }
+
+
+    public function transaction()
+    {
         return $this->hasOne(Transaction::class);
     }
 
-    public function reports() {
+    public function reports()
+    {
         return $this->hasMany(Report::class);
     }
 }

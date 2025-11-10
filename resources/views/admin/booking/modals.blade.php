@@ -3,23 +3,24 @@
 {{-- ========== MODAL UNTUK HALAMAN BOOKING ========== --}}
 {{-- ================================================ --}}
 
+
 {{-- Modal Bukti Transaksi --}}
 <div class="modal fade" id="modalBukti" tabindex="-1" aria-labelledby="modalBuktiLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content text-center">
             <div class="modal-header">
                 <h5 class="modal-title">Bukti Transaksi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center">
-                <img id="buktiTransaksiImg"
-                     src="https://via.placeholder.com/400x250?text=Bukti+Transaksi"
-                     class="img-fluid rounded shadow-sm"
-                     alt="Bukti Transaksi">
+            <div class="modal-body d-flex justify-content-center align-items-center">
+                <img id="buktiTransaksiImg" class="img-fluid rounded shadow-sm mx-auto d-block"
+                    style="max-height: 400px; object-fit: contain;" alt="Bukti Transaksi">
             </div>
         </div>
     </div>
 </div>
+
+
 
 {{-- Modal Verifikasi Booking --}}
 <div class="modal fade" id="modalVerifikasi" tabindex="-1" aria-labelledby="modalVerifikasiLabel" aria-hidden="true">
@@ -59,7 +60,7 @@
                         <select id="staffSelect" name="staff_id" class="form-select" required>
                             <option value="">-- Pilih Staff --</option>
                             @foreach($staffs as $staff)
-                                <option value="{{ $staff->id }}">{{ $staff->nama }}</option>
+                            <option value="{{ $staff->id }}">{{ $staff->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -78,40 +79,51 @@
 {{-- ========================= --}}
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // ====== Modal Verifikasi Booking ======
-    const modalVerifikasi = document.getElementById('modalVerifikasi');
-    modalVerifikasi.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const bookingId = button.getAttribute('data-id');
-        const form = document.getElementById('formVerifikasi');
-        const textVerifikasi = document.getElementById('textVerifikasi');
-        form.action = `/admin/booking/${bookingId}/verify`;
-        textVerifikasi.textContent = `Apakah Anda yakin ingin menyetujui booking #${bookingId}?`;
+    document.addEventListener('DOMContentLoaded', function () {
+        const routeVerify = document.querySelector('meta[name="route-verify"]').content;
+        const routeReject = document.querySelector('meta[name="route-reject"]').content;
+        const routeAssign = document.querySelector('meta[name="route-assign"]').content;
 
-        // Tombol tolak
-        document.getElementById('btnTolak').onclick = () => {
-            form.action = `/admin/booking/${bookingId}/rejected`;
-            form.submit();
-        };
+        // ====== Modal Verifikasi Booking ======
+        const modalVerifikasi = document.getElementById('modalVerifikasi');
+        modalVerifikasi.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const bookingId = button.getAttribute('data-id');
+            const form = document.getElementById('formVerifikasi');
+            const textVerifikasi = document.getElementById('textVerifikasi');
+
+            form.action = routeVerify.replace(':id', bookingId);
+            textVerifikasi.textContent = `Apakah Anda yakin ingin menyetujui booking #${bookingId}?`;
+
+            document.getElementById('btnTolak').onclick = () => {
+                form.action = routeReject.replace(':id', bookingId);
+                form.submit();
+            };
+        });
+
+        // ====== Modal Assign Staff ======
+        const modalAssign = document.getElementById('modalAssign');
+        modalAssign.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const bookingId = button.getAttribute('data-id');
+            const form = document.getElementById('formAssign');
+            form.action = routeAssign.replace(':id', bookingId);
+        });
+
+        // ====== Modal Bukti Transaksi ======
+        const modalBukti = document.getElementById('modalBukti');
+        modalBukti.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const imageUrl = button.getAttribute('data-img'); // sudah full URL
+            const imageEl = document.getElementById('buktiTransaksiImg');
+
+            if (imageUrl) {
+                imageEl.src = imageUrl;
+            } else {
+                imageEl.src = ''; // atau tampilkan teks/placeholder
+                imageEl.alt = 'Bukti tidak tersedia';
+            }
+        });
     });
 
-    // ====== Modal Assign Staff ======
-    const modalAssign = document.getElementById('modalAssign');
-    modalAssign.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const bookingId = button.getAttribute('data-id');
-        const form = document.getElementById('formAssign');
-        form.action = `/admin/booking/${bookingId}/assign-staff`;
-    });
-
-    // ====== Modal Bukti Transaksi ======
-    const modalBukti = document.getElementById('modalBukti');
-    modalBukti.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const imageSrc = button.getAttribute('data-img');
-        const imageEl = document.getElementById('buktiTransaksiImg');
-        imageEl.src = imageSrc || 'https://via.placeholder.com/400x250?text=Bukti+Transaksi';
-    });
-});
 </script>

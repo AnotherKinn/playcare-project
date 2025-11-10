@@ -12,9 +12,9 @@ class Review extends Model
     protected $fillable = [
         'parent_id',
         'booking_id',
-        'service_type',
         'rating',
         'comment',
+        'feedback_category'
     ];
 
     // Relasi ke parent (user)

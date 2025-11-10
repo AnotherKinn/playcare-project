@@ -5,18 +5,15 @@
             @media (max-width: 768px) {
                 .data-transaction-container {
                     padding-top: 50px;
-                    /* kasih jarak agar gak ketimpa navbar hamburger */
                 }
             }
-
         </style>
-        <div class="data-transaction-container">
 
+        <div class="data-transaction-container">
             {{-- Header --}}
             <h3 class="text-primary fw-bold">📊 Data Transaksi</h3>
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
 
-                {{-- Filter, Search & Export --}}
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-body d-flex flex-wrap gap-3 align-items-center">
                         <div class="flex-grow-1">
@@ -37,18 +34,6 @@
                 </div>
             </div>
 
-            @php
-            $dummyTransactions = [
-            ['id' => 'TRX001', 'parent' => 'Aji Pamungkas', 'booking' => 'Anak A', 'method' => 'Transfer', 'total' =>
-            'Rp150.000', 'status' => 'Pending', 'date' => '2025-10-26'],
-            ['id' => 'TRX002', 'parent' => 'Rina Sari', 'booking' => 'Anak B', 'method' => 'Cash', 'total' =>
-            'Rp200.000',
-            'status' => 'Sukses', 'date' => '2025-10-25'],
-            ['id' => 'TRX003', 'parent' => 'Budi Santoso', 'booking' => 'Anak C', 'method' => 'E-wallet', 'total' =>
-            'Rp180.000', 'status' => 'Gagal', 'date' => '2025-10-24'],
-            ];
-            @endphp
-
             {{-- Tabel untuk Desktop --}}
             <div class="table-responsive d-none d-md-block mt-3">
                 <table class="table table-hover align-middle">
@@ -56,7 +41,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Nama Parent</th>
-                            <th>Booking</th>
+                            <th>Nama Anak</th>
                             <th>Metode Pembayaran</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -65,111 +50,115 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($dummyTransactions as $trx)
-                        @php
-                        $statusClass = match($trx['status']) {
-                        'Pending' => 'badge bg-warning text-dark',
-                        'Sukses' => 'badge bg-success',
-                        'Gagal' => 'badge bg-danger',
-                        default => 'badge bg-secondary',
-                        };
-                        @endphp
-                        <tr>
-                            <td>{{ $trx['id'] }}</td>
-                            <td>{{ $trx['parent'] }}</td>
-                            <td>{{ $trx['booking'] }}</td>
-                            <td>{{ $trx['method'] }}</td>
-                            <td>{{ $trx['total'] }}</td>
-                            <td><span class="{{ $statusClass }}">{{ $trx['status'] }}</span></td>
-                            <td>{{ $trx['date'] }}</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#detailModal{{ $trx['id'] }}">Lihat</button>
-                            </td>
-                        </tr>
-                        @endforeach
+                        @forelse($transactions as $trx)
+                            @php
+                                $statusClass = match (strtolower($trx->status)) {
+                                    'pending' => 'badge bg-warning text-dark',
+                                    'sukses' => 'badge bg-success',
+                                    'gagal' => 'badge bg-danger',
+                                    default => 'badge bg-secondary',
+                                };
+                            @endphp
+                            <tr>
+                                <td>{{ 'TRX-' . $trx->id }}</td>
+                                <td>{{ $trx->user->name ?? '-' }}</td>
+                                <td>{{ $trx->booking->child->name ?? '-' }}</td>
+                                <td>{{ ucfirst($trx->payment_method ?? '-') }}</td>
+                                <td>Rp{{ number_format($trx->amount ?? 0, 0, ',', '.') }}</td>
+                                <td><span class="{{ $statusClass }}">{{ ucfirst($trx->status ?? '-') }}</span></td>
+                                <td>{{ $trx->created_at ? $trx->created_at->format('Y-m-d') : '-' }}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#detailModal{{ $trx->id }}">Lihat</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">Belum ada transaksi.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
+                <div class="mt-3">
+                    {{ $transactions->links() }}
+                </div>
             </div>
 
             {{-- Card untuk Mobile --}}
             <div class="d-md-none mt-3">
-                @foreach($dummyTransactions as $trx)
-                @php
-                $statusClass = match($trx['status']) {
-                'Pending' => 'badge bg-warning text-dark',
-                'Sukses' => 'badge bg-success',
-                'Gagal' => 'badge bg-danger',
-                default => 'badge bg-secondary',
-                };
-                @endphp
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $trx['parent'] }}</h5>
-                        <p class="mb-1"><strong>ID:</strong> {{ $trx['id'] }}</p>
-                        <p class="mb-1"><strong>Booking:</strong> {{ $trx['booking'] }}</p>
-                        <p class="mb-1"><strong>Metode:</strong> {{ $trx['method'] }}</p>
-                        <p class="mb-1"><strong>Total:</strong> {{ $trx['total'] }}</p>
-                        <p class="mb-1"><strong>Status:</strong> <span
-                                class="{{ $statusClass }}">{{ $trx['status'] }}</span></p>
-                        <p class="mb-1"><strong>Tanggal:</strong> {{ $trx['date'] }}</p>
-                        <div class="text-end mt-2">
-                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#detailModal{{ $trx['id'] }}">Lihat</button>
+                @foreach($transactions as $trx)
+                    @php
+                        $statusClass = match (strtolower($trx->status)) {
+                            'pending' => 'badge bg-warning text-dark',
+                            'sukses' => 'badge bg-success',
+                            'gagal' => 'badge bg-danger',
+                            default => 'badge bg-secondary',
+                        };
+                    @endphp
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $trx->user->name ?? '-' }}</h5>
+                            <p class="mb-1"><strong>ID:</strong> {{ 'TRX-' . $trx->id }}</p>
+                            <p class="mb-1"><strong>Anak:</strong> {{ $trx->booking->child->name ?? '-' }}</p>
+                            <p class="mb-1"><strong>Metode:</strong> {{ ucfirst($trx->payment_method ?? '-') }}</p>
+                            <p class="mb-1"><strong>Total:</strong> Rp{{ number_format($trx->amount ?? 0, 0, ',', '.') }}</p>
+                            <p class="mb-1"><strong>Status:</strong> <span class="{{ $statusClass }}">{{ ucfirst($trx->status ?? '-') }}</span></p>
+                            <p class="mb-1"><strong>Tanggal:</strong> {{ $trx->created_at ? $trx->created_at->format('Y-m-d') : '-' }}</p>
+                            <div class="text-end mt-2">
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#detailModal{{ $trx->id }}">Lihat</button>
+                            </div>
                         </div>
                     </div>
-                </div>
                 @endforeach
             </div>
 
-            {{-- Pagination Dummy --}}
-            <nav class="mt-3">
-                <ul class="pagination justify-content-end">
-                    <li class="page-item"><a class="page-link" href="#">Prev</a></li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
-
-            {{-- Modal Detail Transaksi --}}
-            @foreach($dummyTransactions as $trx)
-            <div class="modal fade" id="detailModal{{ $trx['id'] }}" tabindex="-1"
-                aria-labelledby="detailModalLabel{{ $trx['id'] }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title" id="detailModalLabel{{ $trx['id'] }}">Detail Transaksi
-                                {{ $trx['id'] }}
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p><strong>Parent:</strong> {{ $trx['parent'] }}</p>
-                            <p><strong>Booking:</strong> {{ $trx['booking'] }}</p>
-                            <p><strong>Metode Pembayaran:</strong> {{ $trx['method'] }}</p>
-                            <p><strong>Total:</strong> {{ $trx['total'] }}</p>
-                            <p><strong>Status:</strong> <span class="{{ $statusClass }}">{{ $trx['status'] }}</span></p>
-                            <p><strong>Tanggal:</strong> {{ $trx['date'] }}</p>
-                            <hr>
-                            {{-- Contoh detail tambahan --}}
-                            <p><strong>Detail Booking:</strong></p>
-                            <ul>
-                                <li>Layanan: Daycare Harian</li>
-                                <li>Waktu: 08:00 - 16:00</li>
-                                <li>Catatan: Tidak ada alergi</li>
-                            </ul>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            {{-- Modal Detail --}}
+            @foreach($transactions as $trx)
+                <div class="modal fade" id="detailModal{{ $trx->id }}" tabindex="-1"
+                    aria-labelledby="detailModalLabel{{ $trx->id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="detailModalLabel{{ $trx->id }}">
+                                    Detail Transaksi {{ 'TRX-' . $trx->id }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Parent:</strong> {{ $trx->user->name ?? '-' }}</p>
+                                <p><strong>Anak:</strong> {{ $trx->booking->child->name ?? '-' }}</p>
+                                <p><strong>Metode Pembayaran:</strong> {{ ucfirst($trx->payment_method ?? '-') }}</p>
+                                <p><strong>Total:</strong> Rp{{ number_format($trx->amount ?? 0, 0, ',', '.') }}</p>
+                                <p><strong>Status:</strong> <span class="{{ $statusClass }}">{{ ucfirst($trx->status ?? '-') }}</span></p>
+                                <p><strong>Tanggal:</strong> {{ $trx->created_at ? $trx->created_at->format('Y-m-d') : '-' }}</p>
+                                <hr>
+                                @if($trx->booking)
+                                    <p><strong>Detail Booking:</strong></p>
+                                    <ul>
+                                        @if($trx->booking->service_type === 'full_day')
+                                            <li>Full Day</li>
+                                        @elseif($trx->booking->service_type === 'half_day')
+                                            <li>Half Day</li>
+                                        @elseif($trx->booking->service_type === 'playground')
+                                            <li>Playground</li>
+                                        @else
+                                            <li>-</li>
+                                        @endif
+                                        <li>Durasi: {{ $trx->booking->duration_hours ?? '-' }} jam</li>
+                                        <li>Tanggal Booking: {{ $trx->booking->booking_date?->format('Y-m-d H:i') ?? '-' }}</li>
+                                        <li>Catatan: {{ $trx->booking->notes ?? '-' }}</li>
+                                    </ul>
+                                @endif
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             @endforeach
-
         </div>
     </div>
 </x-app-layout>

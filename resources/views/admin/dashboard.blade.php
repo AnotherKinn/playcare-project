@@ -1,200 +1,141 @@
+{{-- resources/views/admin/dashboard.blade.php --}}
 <x-app-layout>
-    <div class="container-fluid py-4">
-        {{-- Tambahkan padding-top khusus untuk mobile --}}
-        <style>
-            @media (max-width: 768px) {
-                .admin-dashboard {
-                    padding-top: 50px;
-                    /* kasih jarak agar gak ketimpa navbar hamburger */
-                }
-            }
+    <div class="container mx-auto py-6 px-4">
+        <h3 class="text-[color:var(--pc-turquoise)] font-bold text-xl mb-6 flex items-center gap-2">📊 <span>Dashboard Admin</span></h3>
 
-        </style>
-        {{-- Header --}}
-        <div class="admin-dashboard">
+        {{-- ====== ALERT TRANSAKSI PENDING ====== --}}
+        <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-lg shadow-soft-card p-4 mb-6 flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-yellow-600 text-2xl"></i>
+            <div class="flex-1 text-gray-800 text-sm">
+                Ada <strong>{{ $transaksiPending }}</strong> transaksi menunggu verifikasi pembayaran.
+                <a href="{{ route('admin.transaction.index') }}" class="underline font-semibold ml-1 hover:text-[color:var(--pc-turquoise)]">Verifikasi Sekarang</a>
+            </div>
+        </div>
 
-            <div class="mb-4">
-                <h4 class="fw-bold text-primary mb-1">Dashboard Admin</h4>
-                <p class="text-muted">Ringkasan aktivitas dan statistik sistem - {{ now()->format('d M Y') }}</p>
+        {{-- ====== STATISTIK KARTU ====== --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div class="rounded-2xl bg-blue-700 text-white shadow-soft-card p-6 flex items-center justify-between">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Total Parents</h6>
+                    <h3 class="text-3xl font-extrabold">{{ $totalParents }}</h3>
+                </div>
+                <i class="bi bi-people text-white opacity-80 text-5xl"></i>
             </div>
 
-            {{-- Alert / Notifikasi --}}
-            <div class="alert alert-warning shadow-sm">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                Ada <strong>3 transaksi</strong> menunggu verifikasi pembayaran.
-                <a href="#" class="text-decoration-none fw-bold ms-2">Verifikasi Sekarang</a>
+            <div class="rounded-2xl bg-blue-500 text-white shadow-soft-card p-6 flex items-center justify-between">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Total Staff</h6>
+                    <h3 class="text-3xl font-extrabold">{{ $totalStaff }}</h3>
+                </div>
+                <i class="bi bi-person-badge text-white opacity-80 text-5xl"></i>
             </div>
 
-            {{-- Statistik Cards --}}
-            <div class="row g-3 align-items-stretch">
-                <div class="col-6 col-md-3">
-                    <div class="card text-white bg-primary shadow-sm border-0 h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Total Parents</h6>
-                                <h3 class="fw-bold">120</h3>
-                            </div>
-                            <i class="bi bi-people fs-1 opacity-75"></i>
-                        </div>
-                    </div>
+            <div class="rounded-2xl bg-yellow-400 text-gray-900 shadow-soft-card p-6 flex items-center justify-between">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Booking Aktif</h6>
+                    <h3 class="text-3xl font-extrabold">{{ $bookingAktif }}</h3>
                 </div>
-
-                <div class="col-6 col-md-3">
-                    <div class="card text-white bg-info shadow-sm border-0 h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Total Staff</h6>
-                                <h3 class="fw-bold">15</h3>
-                            </div>
-                            <i class="bi bi-person-badge fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-3">
-                    <div class="card text-dark bg-warning shadow-sm border-0 h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Booking Aktif</h6>
-                                <h3 class="fw-bold">34</h3>
-                            </div>
-                            <i class="bi bi-calendar-check fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-3">
-                    <div class="card text-white bg-success shadow-sm border-0 h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Pendapatan Bulan Ini</h6>
-                                <h3 class="fw-bold">Rp 8.500.000</h3>
-                            </div>
-                            <i class="bi bi-cash-stack fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+                <i class="bi bi-calendar-check text-gray-900 opacity-80 text-5xl"></i>
             </div>
 
+            <div class="rounded-2xl bg-green-600 text-white shadow-soft-card p-6 flex items-center justify-between">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Pendapatan Bulan Ini</h6>
+                    <h3 class="text-3xl font-extrabold">Rp {{ number_format($pendapatanBulanIni, 0, ',', '.') }}</h3>
+                </div>
+                <i class="bi bi-cash-stack text-white opacity-80 text-5xl"></i>
+            </div>
+        </div>
 
-            {{-- Grafik Pendapatan (hanya tampil di layar md ke atas) --}}
-            <div class="card mt-4 shadow-sm border-0 d-none d-md-block">
-                <div class="card-header bg-white fw-bold">
-                    <i class="bi bi-bar-chart-line me-2"></i> Statistik Pendapatan Bulanan
+        {{-- ====== BAGIAN GRAFIK & BOOKING ====== --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {{-- ====== GRAFIK PENDAPATAN ====== --}}
+            <div class="lg:col-span-7 bg-white rounded-2xl shadow-soft-card p-6">
+                <div class="mb-4 text-[color:var(--pc-turquoise)] font-bold text-lg flex items-center gap-2">
+                    📈 Grafik Pendapatan Tahunan
                 </div>
-                <div class="card-body">
-                    <canvas id="incomeChart" height="120"></canvas>
-                </div>
+                <canvas id="incomeChart" height="150"></canvas>
             </div>
 
-            {{-- Booking Terbaru --}}
-            <div class="card mt-4 shadow-sm border-0">
-                <div class="card-header bg-white fw-bold">
-                    <i class="bi bi-calendar-event me-2"></i> Booking Terbaru
-                </div>
-                <div class="card-body">
+            {{-- ====== BOOKING TERBARU ====== --}}
+            <div class="lg:col-span-5 bg-white rounded-2xl shadow-soft-card p-6 flex flex-col">
+                <h5 class="mb-4 text-[color:var(--pc-turquoise)] font-bold text-lg flex items-center gap-2">
+                    🕒 Booking Terbaru
+                </h5>
 
-                    {{-- Versi Tabel (desktop/tablet) --}}
-                    <div class="table-responsive d-none d-md-block">
-                        <table class="table table-striped table-hover align-middle">
-                            <thead class="table-light">
+                @if($bookingTerbaru->count() > 0)
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th>Parent</th>
-                                    <th>Tanggal</th>
-                                    <th>Status</th>
-                                    <th>Staff</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">Parent</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">Tanggal</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">Staff</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Rina Puspita</td>
-                                    <td>25 Okt 2025</td>
-                                    <td><span class="badge bg-warning">Menunggu</span></td>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <td>Andi Setiawan</td>
-                                    <td>24 Okt 2025</td>
-                                    <td><span class="badge bg-success">Disetujui</span></td>
-                                    <td>Sinta Dewi</td>
-                                </tr>
-                                <tr>
-                                    <td>Maya Lestari</td>
-                                    <td>22 Okt 2025</td>
-                                    <td><span class="badge bg-danger">Dibatalkan</span></td>
-                                    <td>-</td>
-                                </tr>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach ($bookingTerbaru as $b)
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-4 py-3">{{ $b->parent->name ?? '-' }}</td>
+                                        <td class="px-4 py-3">{{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</td>
+                                        <td class="px-4 py-3">
+                                            @if ($b->status == 'pending')
+                                                <span class="inline-block px-3 py-1 rounded-full text-yellow-800 bg-yellow-100 font-semibold text-xs">Menunggu Verifikasi</span>
+                                            @elseif ($b->status == 'approved')
+                                                <span class="inline-block px-3 py-1 rounded-full text-green-800 bg-green-100 font-semibold text-xs">Disetujui Admin</span>
+                                            @elseif ($b->status == 'assigned')
+                                                <span class="inline-block px-3 py-1 rounded-full text-green-800 bg-green-100 font-semibold text-xs">Ditugaskan ke Staff</span>
+                                            @elseif ($b->status == 'in_progress')
+                                                <span class="inline-block px-3 py-1 rounded-full text-blue-800 bg-blue-100 font-semibold text-xs">Sedang Dikerjakan</span>
+                                            @elseif ($b->status == 'completed')
+                                                <span class="inline-block px-3 py-1 rounded-full text-green-900 bg-green-200 font-semibold text-xs">Selesai</span>
+                                            @else
+                                                <span class="inline-block px-3 py-1 rounded-full text-red-800 bg-red-100 font-semibold text-xs">Dibatalkan</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3">{{ $b->assignedStaff->name ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
-
-                    {{-- Versi Card (mobile) --}}
-                    <div class="d-block d-md-none">
-                        <div class="card mb-3 border-0 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="fw-bold mb-1">Rina Puspita</h6>
-                                <p class="mb-1"><i class="bi bi-calendar-event me-1"></i> 25 Okt 2025</p>
-                                <span class="badge bg-warning">Menunggu</span>
-                                <p class="text-muted mt-2 mb-0"><i class="bi bi-person me-1"></i> Staff: -</p>
-                            </div>
-                        </div>
-                        <div class="card mb-3 border-0 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="fw-bold mb-1">Andi Setiawan</h6>
-                                <p class="mb-1"><i class="bi bi-calendar-event me-1"></i> 24 Okt 2025</p>
-                                <span class="badge bg-success">Disetujui</span>
-                                <p class="text-muted mt-2 mb-0"><i class="bi bi-person me-1"></i> Staff: Sinta Dewi</p>
-                            </div>
-                        </div>
-                        <div class="card mb-3 border-0 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="fw-bold mb-1">Maya Lestari</h6>
-                                <p class="mb-1"><i class="bi bi-calendar-event me-1"></i> 22 Okt 2025</p>
-                                <span class="badge bg-danger">Dibatalkan</span>
-                                <p class="text-muted mt-2 mb-0"><i class="bi bi-person me-1"></i> Staff: -</p>
-                            </div>
-                        </div>
+                @else
+                    <div class="flex flex-col items-center justify-center h-40 text-gray-400 space-y-2">
+                        <i class="bi bi-calendar-x fs-3 text-4xl"></i>
+                        <div>Belum ada booking terbaru.</div>
                     </div>
-
-                </div>
+                @endif
             </div>
         </div>
     </div>
 
-    {{-- Script Grafik Dummy --}}
-    @push('scripts')
+    {{-- ====== SCRIPT GRAFIK ====== --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('incomeChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt'],
+                labels: @json($months),
                 datasets: [{
                     label: 'Pendapatan (Rp)',
-                    data: [4000000, 5000000, 4800000, 7000000, 6000000, 8000000, 9500000, 8700000,
-                        9100000, 8500000
-                    ],
-                    borderColor: '#1E3A8A',
-                    backgroundColor: 'rgba(30, 58, 138, 0.2)',
+                    data: @json($chartData),
+                    borderColor: '#2bbec6',
+                    backgroundColor: 'rgba(43, 190, 198, 0.2)',
                     fill: true,
-                    tension: 0.3
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 4
                 }]
             },
             options: {
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                    y: { beginAtZero: true },
+                    x: { grid: { display: false } }
                 }
             }
         });
-
     </script>
-    @endpush
 </x-app-layout>

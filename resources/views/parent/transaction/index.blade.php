@@ -45,7 +45,7 @@
                             <tr>
                                 <th>ID Transaksi</th>
                                 <th>Nama Anak</th>
-                                <th>Layanan</th>
+                                <th>Tipe Waktu Penitipan</th>
                                 <th>Tanggal</th>
                                 <th>Total</th>
                                 <th>Status</th>
@@ -56,21 +56,23 @@
                             @foreach ($transactions as $trx)
                             @php
                             $badgeClass = match($trx->status) {
-                            'Berhasil' => 'success',
-                            'Pending' => 'warning',
-                            'Gagal' => 'danger',
+                            'confirmed' => 'success',
+                            'pending' => 'warning',
+                            'failed' => 'danger',
                             default => 'secondary'
                             };
                             @endphp
                             <tr>
                                 <td>{{ $trx->transaction_code }}</td>
                                 <td>{{ $trx->booking->child->name ?? '-' }}</td>
-                                @if($trx->booking->service_type === 'half_day')
-                                <td>Half Day</td>
-                                @elseif($trx->booking->service_type === 'playground')
-                                <td>Playground</td>
+                                @if($trx->booking->time_type === 'per_jam')
+                                <td>Per jam</td>
+                                @elseif($trx->booking->time_type === 'per_hari')
+                                <td>Sehari</td>
+                                @elseif($trx->booking->time_type === 'per_bulan')
+                                <td>Sebulan</td>
                                 @else
-                                <td>Full Day</td>
+                                <td>-</td>
                                 @endif
                                 <td>{{ $trx->booking->booking_date ? date('d M Y', strtotime($trx->booking->booking_date)) : '-' }}
                                 </td>
@@ -94,18 +96,18 @@
                 @foreach ($transactions as $trx)
                 @php
                 $badgeClass = match($trx->status) {
-                'Berhasil' => 'success',
-                'Pending' => 'warning',
-                'Gagal' => 'danger',
+                'confirmed' => 'success',
+                'pending' => 'warning',
+                'failed' => 'danger',
                 default => 'secondary'
                 };
                 @endphp
                 <div class="card mb-3 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            @if($trx->booking->service_type === 'half_day')
+                            @if($trx->booking->time_type === 'half_day')
                             <h6 class="fw-bold text-primary mb-0">Half Day</h6>
-                            @elseif($trx->booking->service_type === 'playground')
+                            @elseif($trx->booking->time_type === 'playground')
                             <h6 class="fw-bold text-primary mb-0">Playground</h6>
                             @else
                             <h6 class="fw-bold text-primary mb-0">Full Day</h6>
@@ -130,53 +132,9 @@
 
             {{-- Modal Detail --}}
             @foreach ($transactions as $trx)
-            @php
-            $badgeClass = match($trx->status) {
-            'Berhasil' => 'success',
-            'Pending' => 'warning',
-            'Gagal' => 'danger',
-            default => 'secondary'
-            };
-            @endphp
-            <div class="modal fade" id="detailModal{{ $trx->id }}" tabindex="-1"
-                aria-labelledby="detailModalLabel{{ $trx->id }}" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title">Detail Transaksi {{ $trx->transaction_code }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><strong>Nama Anak:</strong>
-                                    {{ $trx->booking->child->name ?? '-' }}</li>
-                                <li class="list-group-item"><strong>Layanan:</strong>
-                                    @if($trx->booking->service_type === 'half_day')
-                                        Half Day
-                                    @elseif($trx->booking->service_type === 'playground')
-                                        Playground
-                                    @else
-                                        Full Day
-                                    @endif
-                                </li>
-                                <li class="list-group-item"><strong>Total Pembayaran:</strong>
-                                    Rp{{ number_format($trx->amount, 0, ',', '.') }}</li>
-                                <li class="list-group-item"><strong>Status:</strong> <span
-                                        class="badge bg-{{ $badgeClass }}">{{ $trx->status }}</span></li>
-                                <li class="list-group-item"><strong>Metode Pembayaran:</strong>
-                                    {{ $trx->payment_method ?? '-' }}</li>
-                                <li class="list-group-item"><strong>Keterangan:</strong>
-                                    {{ $trx->status == 'Berhasil' ? 'Pembayaran diterima dan diverifikasi.' : ($trx->status == 'Pending' ? 'Menunggu konfirmasi pembayaran.' : 'Transaksi gagal, silakan ulangi.') }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-transaction-detail :transaction="$trx" />
             @endforeach
+
 
             {{-- Pagination --}}
             <div class="mt-3">

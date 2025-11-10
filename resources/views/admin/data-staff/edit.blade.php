@@ -5,23 +5,10 @@
             @media (max-width: 768px) {
                 .edit-staff-container {
                     padding-top: 50px;
-                    /* kasih jarak agar gak ketimpa navbar hamburger */
+                    /* jarak biar gak ketimpa navbar hamburger */
                 }
             }
-
         </style>
-
-        {{-- Dummy data staff --}}
-        @php
-        $staff = [
-        'name' => 'Rina Putri',
-        'email' => 'rina@daycare.com',
-        'phone' => '08123456789',
-        'address' => 'Bandung',
-        'status' => 'active',
-        ];
-        @endphp
-
 
         <div class="edit-staff-container">
 
@@ -33,40 +20,59 @@
                 </a>
             </div>
 
-            {{-- Form Edit Dummy --}}
+            {{-- Form Edit Dinamis --}}
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <form>
+                    <form action="{{ route('admin.data-staff.update', $staff->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
                         <div class="mb-3">
                             <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" value="{{ $staff['name'] }}">
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                                value="{{ old('name', $staff->name) }}" required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" value="{{ $staff['email'] }}">
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                                value="{{ old('email', $staff->email) }}" required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Telepon</label>
-                            <input type="text" class="form-control" value="{{ $staff['phone'] }}">
+                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
+                                value="{{ old('phone', $staff->phone) }}" required>
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Alamat</label>
-                            <textarea class="form-control" rows="2">{{ $staff['address'] }}</textarea>
+                            <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="2" required>{{ old('address', $staff->address) }}</textarea>
+                            @error('address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Status</label>
-                            <select class="form-select">
-                                <option value="active" @if($staff['status']=='active' ) selected @endif>Active</option>
-                                <option value="disabled" @if($staff['status']=='disabled' ) selected @endif>Disabled
-                                </option>
+                            <select name="status" class="form-select">
+                                <option value="active" {{ $staff->status === 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="disabled" {{ $staff->status === 'disabled' ? 'selected' : '' }}>Disabled</option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-warning w-100">Simpan Perubahan</button>
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-save me-1"></i> Simpan Perubahan
+                        </button>
                     </form>
                 </div>
             </div>

@@ -27,10 +27,19 @@
             <div class="dropdown">
                 <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
                     data-bs-toggle="dropdown">
-                    <img src="{{ Auth::user()->photo
-                            ? asset('storage/' . Auth::user()->photo)
-                            : 'https://via.placeholder.com/35?text=👤' }}" alt="avatar"
+
+                    @if (Auth::user()->photo)
+                    <img src="{{ asset('storage/profile_photos/' . Auth::user()->photo) }}" alt="avatar"
                         class="rounded-circle me-2 border" width="35" height="35" style="object-fit: cover;">
+                    @else
+                    @php
+                    $initial = strtoupper(substr(Auth::user()->name, 0, 1));
+                    @endphp
+                    <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2 border"
+                        style="width: 35px; height: 35px; font-weight: 600;">
+                        {{ $initial }}
+                    </div>
+                    @endif
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
@@ -52,6 +61,7 @@
                     </li>
                 </ul>
             </div>
+
         </div>
     </div>
 </nav>

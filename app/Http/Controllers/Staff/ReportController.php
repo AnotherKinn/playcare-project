@@ -13,28 +13,33 @@ use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->search;
+
         // Ambil anak yang booking-nya sedang in_progress
         $children = Child::whereHas('bookings', function ($q) {
             $q->where('status', 'in_progress');
         })->get();
 
-        // Ambil semua laporan oleh staff login
+        // Ambil semua laporan + filter nama anak
         $reports = Report::with(['child', 'booking'])
             ->where('staff_id', Auth::id())
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('child', function ($childQuery) use ($search) {
+                    $childQuery->where('name', 'like', "%{$search}%");
+                });
+            })
             ->latest()
             ->get();
 
-        // buatkan url foto seperti di BookingController
         foreach ($reports as $r) {
-            $r->photo_url = $r->photo
-                ? Storage::url($r->photo)
-                : null;
+            $r->photo_url = $r->photo ? Storage::url($r->photo) : null;
         }
 
-        return view('staff.report.index', compact('reports', 'children'));
+        return view('staff.report.index', compact('reports', 'children', 'search'));
     }
+
 
 
     public function create()
@@ -42,7 +47,7 @@ class ReportController extends Controller
         // Ambil anak-anak yang sedang ditugaskan ke staff login
         // dan memiliki booking dengan status 'approved'
         $children = Child::whereHas('bookings', function ($q) {
-            $q->where('status', 'assigned')
+            $q->where('status', 'in_progress')
                 ->where('staff_id', Auth::id());
         })->get();
 
@@ -63,7 +68,7 @@ class ReportController extends Controller
 
         $booking = Booking::where('child_id', $validated['child_id'])
             ->where('staff_id', Auth::id())
-            ->where('status', 'assigned')
+            ->where('status', 'in_progress')
             ->first();
 
         if (!$booking) {

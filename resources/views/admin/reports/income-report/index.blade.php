@@ -56,7 +56,7 @@
                         <td>{{ $trx->booking?->parent?->name ?? '-' }}</td>
                         <td>Rp {{ number_format($trx->amount, 0, ',', '.') }}</td>
                         <td>
-                            <span class="badge bg-{{ $trx->status === 'confirmed' ? 'success' : 'secondary' }}">
+                            <span class="badge bg-{{ $trx->status === 'success' ? 'success' : 'secondary' }}">
                                 {{ ucfirst($trx->status) }}
                             </span>
                         </td>
@@ -81,6 +81,7 @@
 
         const months = @json($months);
         const totals = @json($totals);
+
 
         new Chart(ctx, {
             type: 'bar',

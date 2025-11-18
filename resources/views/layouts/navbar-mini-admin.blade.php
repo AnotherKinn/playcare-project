@@ -7,11 +7,11 @@
                 data-bs-target="#offcanvasSidebar">
                 <i class="bi bi-list fs-5"></i>
             </button>
-            <h6 class="mb-0 fw-semibold text-primary">Hai, {{ Auth::user()->name ?? 'Parent' }} 👋</h6>
+            <h6 class="mb-0 fw-semibold text-primary">Hai, {{ Auth::user()->name ?? 'Admin' }} 👋</h6>
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('parent.notifications.index') }}" class="btn btn-light position-relative">
+            <a href="{{ route('admin.notifications.index') }}" class="btn btn-light position-relative">
                 <i class="bi bi-bell fs-5"></i>
                 @if($notifCount > 0)
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -37,10 +37,6 @@
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                    <li><a class="dropdown-item" href="{{ route('parent.profile.edit') }}">Profil</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

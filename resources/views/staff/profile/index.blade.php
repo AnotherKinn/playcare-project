@@ -3,11 +3,8 @@
         {{-- Header --}}
         <div class="card shadow-sm mb-4 border-0">
             <div class="card-body d-flex align-items-center">
-                <img
-                    src="{{ $staff['foto'] }}"
-                    class="rounded-circle me-3"
-                    alt="Foto Profil"
-                    width="100" height="100">
+                <img src="{{ $staff['foto'] }}" class="rounded-circle me-3" alt="Foto Profil" width="100" height="100">
+
                 <div class="flex-grow-1">
                     <h4 class="fw-bold mb-0">{{ $staff['nama'] }}</h4>
                     <p class="text-muted mb-1">
@@ -26,10 +23,22 @@
                 <i class="bi bi-person-badge me-2"></i> Informasi Pribadi
             </div>
             <div class="card-body">
-                <div class="row mb-2"><div class="col-md-4 fw-semibold">Nama Lengkap</div><div class="col-md-8">{{ $staff['nama'] }}</div></div>
-                <div class="row mb-2"><div class="col-md-4 fw-semibold">Jabatan</div><div class="col-md-8">{{ $staff['jabatan'] }}</div></div>
-                <div class="row mb-2"><div class="col-md-4 fw-semibold">No. Telepon</div><div class="col-md-8">{{ $staff['telepon'] }}</div></div>
-                <div class="row mb-2"><div class="col-md-4 fw-semibold">Alamat</div><div class="col-md-8">{{ $staff['alamat'] }}</div></div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Nama Lengkap</div>
+                    <div class="col-md-8">{{ $staff['nama'] }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Jabatan</div>
+                    <div class="col-md-8">{{ $staff['jabatan'] }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">No. Telepon</div>
+                    <div class="col-md-8">{{ $staff['telepon'] }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Alamat</div>
+                    <div class="col-md-8">{{ $staff['alamat'] }}</div>
+                </div>
             </div>
         </div>
 
@@ -39,8 +48,11 @@
                 <i class="bi bi-person-circle me-2"></i> Informasi Akun
             </div>
             <div class="card-body">
-                <div class="row mb-2"><div class="col-md-4 fw-semibold">Email</div><div class="col-md-8">{{ $staff['email'] }}</div></div>
-                
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Email</div>
+                    <div class="col-md-8">{{ $staff['email'] }}</div>
+                </div>
+
             </div>
         </div>
 

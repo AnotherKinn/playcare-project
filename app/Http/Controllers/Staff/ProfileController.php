@@ -36,11 +36,14 @@ class ProfileController extends Controller
             'alamat' => $user->address ?? '-',
             'email' => $user->email,
             'status' => 'Aktif',
-            'foto' => 'https://ui-avatars.com/api/?name=' . urlencode($user->name),
+            'foto' => $user->photo
+                ? asset('storage/profile_photos/' . $user->photo)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($user->name),
             'bergabung_sejak' => $user->created_at->translatedFormat('F Y'),
             'laporan_dibuat' => $totalReports,
             'booking_ditangani' => $totalBookings,
         ];
+
 
         return view('staff.profile.index', compact('staff'));
     }
@@ -71,7 +74,9 @@ class ProfileController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:6',
+            'photo' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
+
 
         // assign manual
         $user->name = $validated['name'];
@@ -82,6 +87,19 @@ class ProfileController extends Controller
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
+
+        // Hapus foto lama (jika ada)
+        if ($user->photo && file_exists(storage_path('app/public/profile_photos/' . $user->photo))) {
+            unlink(storage_path('app/public/profile_photos/' . $user->photo));
+        }
+
+        // Simpan foto baru
+        $filename = time() . '_' . $request->photo->getClientOriginalName();
+        $request->photo->storeAs('public/profile_photos', $filename);
+
+        $user->photo = $filename;
+
+
 
         $user->save();
 

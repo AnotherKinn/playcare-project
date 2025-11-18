@@ -6,29 +6,6 @@
     <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center mb-3 text-decoration-none">
         <span class="fs-4 fw-bold text-primary">🛠️ PlayCare Admin</span>
     </a>
-
-    <!-- Navbar Mini untuk Notifikasi -->
-    <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
-        <a href="{{ route('admin.notifications.index') }}" class="text-decoration-none position-relative">
-            <i class="bi bi-bell fs-4 text-primary"></i>
-
-            {{-- Badge Notifikasi --}}
-
-
-            @if($notifCount > 0)
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ $notifCount }}
-            </span>
-            @endif
-
-        </a>
-
-        <a href="{{ route('admin.notifications.index') }}" class="small text-muted">
-            Lihat Semua
-        </a>
-    </div>
-
-
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
 

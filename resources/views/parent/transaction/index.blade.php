@@ -18,13 +18,17 @@
                             <div class="col-md-3">
                                 <select name="status" class="form-select">
                                     <option value="">Semua Status</option>
-                                    <option value="Berhasil" {{ request('status') == 'Berhasil' ? 'selected' : '' }}>
-                                        Berhasil</option>
-                                    <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>
-                                        Pending</option>
-                                    <option value="Gagal" {{ request('status') == 'Gagal' ? 'selected' : '' }}>Gagal
+                                    <option value="success" {{ request('status') == 'success' ? 'selected' : '' }}>
+                                        Selesai</option>
+                                    <option value="pending_verification"
+                                        {{ request('status') == 'pending_verification' ? 'selected' : '' }}>Menunggu
+                                        Verifikasi</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                                        Menunggu</option>
+                                    <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Gagal
                                     </option>
                                 </select>
+
                             </div>
                             <div class="col-md-2">
                                 <button class="btn btn-primary w-100">
@@ -54,14 +58,6 @@
                         </thead>
                         <tbody>
                             @foreach ($transactions as $trx)
-                            @php
-                            $badgeClass = match($trx->status) {
-                            'confirmed' => 'success',
-                            'pending' => 'warning',
-                            'failed' => 'danger',
-                            default => 'secondary'
-                            };
-                            @endphp
                             <tr>
                                 <td>{{ $trx->transaction_code }}</td>
                                 <td>{{ $trx->booking->child->name ?? '-' }}</td>
@@ -77,7 +73,18 @@
                                 <td>{{ $trx->booking->booking_date ? date('d M Y', strtotime($trx->booking->booking_date)) : '-' }}
                                 </td>
                                 <td>Rp{{ number_format($trx->amount, 0, ',', '.') }}</td>
-                                <td><span class="badge bg-{{ $badgeClass }}">{{ $trx->status }}</span></td>
+                                @if($trx->status === 'pending_verification')
+                                <td><span class="badge bg-warning">Menunggu Verifikasi</span></td>
+                                @elseif($trx->status === 'pending')
+                                <td><span class="badge bg-info text-dark">Menunggu</span></td>
+                                @elseif($trx->status === 'success')
+                                <td><span class="badge bg-success">Selesai</span></td>
+                                @elseif($trx->status === 'failed')
+                                <td><span class="badge bg-danger">Gagal</span></td>
+                                @else
+                                <td><span class="badge bg-secondary">Tidak Diketahui</span></td>
+                                @endif
+
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                                         data-bs-target="#detailModal{{ $trx->id }}">
@@ -96,8 +103,9 @@
                 @foreach ($transactions as $trx)
                 @php
                 $badgeClass = match($trx->status) {
-                'confirmed' => 'success',
+                'success' => 'success',
                 'pending' => 'warning',
+                'pending_verification' => 'warning',
                 'failed' => 'danger',
                 default => 'secondary'
                 };
@@ -105,15 +113,17 @@
                 <div class="card mb-3 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            @if($trx->booking->time_type === 'half_day')
-                            <h6 class="fw-bold text-primary mb-0">Half Day</h6>
-                            @elseif($trx->booking->time_type === 'playground')
-                            <h6 class="fw-bold text-primary mb-0">Playground</h6>
-                            @else
-                            <h6 class="fw-bold text-primary mb-0">Full Day</h6>
-                            @endif
-
-                            <span class="badge bg-{{ $badgeClass }}">{{ $trx->status }}</span>
+                            @if($trx->status === 'pending_verification')
+                                <span class="badge bg-warning">Menunggu Verifikasi</span>
+                                @elseif($trx->status === 'pending')
+                                <span class="badge bg-info text-dark">Menunggu</span>
+                                @elseif($trx->status === 'success')
+                                <span class="badge bg-success">Selesai</span>
+                                @elseif($trx->status === 'failed')
+                                <span class="badge bg-danger">Gagal</span>
+                                @else
+                                <span class="badge bg-secondary">Tidak Diketahui</span>
+                                @endif
                         </div>
                         <p class="mb-1"><strong>ID:</strong> {{ $trx->transaction_code }}</p>
                         <p class="mb-1"><strong>Nama Anak:</strong> {{ $trx->booking->child->name ?? '-' }}</p>

@@ -20,36 +20,36 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.navbar-mini', \App\View\Composers\NotificationComposer::class);
 
         // View composer untuk sidebar admin
-        View::composer('layouts.sidebar-admin', function ($view) {
-            // Ambil semua notifikasi admin terbaru
-            $notifications = Notification::with(['booking.child', 'transaction'])
-                ->latest()
-                ->get();
+        // View::composer('layouts.sidebar-admin', function ($view) {
+        //     // Ambil semua notifikasi admin terbaru
+        //     $notifications = Notification::with(['booking.child', 'transaction'])
+        //         ->latest()
+        //         ->get();
 
-            // Filter manual sesuai kondisi di halaman notifications/index.blade.php
-            $notifCount = $notifications->filter(function ($notif) {
-                $booking = $notif->booking;
-                $transaction = $notif->transaction;
+        //     // Filter manual sesuai kondisi di halaman notifications/index.blade.php
+        //     $notifCount = $notifications->filter(function ($notif) {
+        //         $booking = $notif->booking;
+        //         $transaction = $notif->transaction;
 
-                return match ($notif->type_notification) {
-                    'booking_created' => $booking && $transaction
-                        && $booking->status === 'pending'
-                        && $transaction->status === 'pending_verification',
+        //         return match ($notif->type_notification) {
+        //             'booking_created' => $booking && $transaction
+        //                 && $booking->status === 'pending'
+        //                 && $transaction->status === 'pending_verification',
 
-                    'information' => $booking && in_array($booking->status, ['approved', 'cancelled']),
+        //             'information' => $booking && in_array($booking->status, ['approved', 'cancelled']),
 
-                    'report_child' => true,
+        //             'report_child' => true,
 
-                    'pick_up_children' => true,
+        //             'pick_up_children' => true,
 
-                    'review_parent' => true,
+        //             'review_parent' => true,
 
-                    default => false,
-                };
-            })->count();
+        //             default => false,
+        //         };
+        //     })->count();
 
-            $view->with('notifCount', $notifCount);
-        });
+        //     $view->with('notifCount', $notifCount);
+        // });
 
         View::composer('layouts.nav-staff', function ($view) {
             $user = Auth::user();
@@ -67,6 +67,43 @@ class AppServiceProvider extends ServiceProvider
                 //              ->whereHas('booking', fn($b) => $b->where('staff_id', $user->id));
                 //       });
                 // })->count();
+            }
+
+            $view->with('notifCount', $notifCount);
+        });
+
+
+        View::composer('layouts.navbar-mini-admin', function ($view) {
+            $isAdmin = Auth::user()->role === 'admin';
+            $notifCount = 0;
+
+            if ($isAdmin) {
+                // Ambil semua notifikasi admin terbaru
+                $notifications = Notification::with(['booking.child', 'transaction'])
+                    ->latest()
+                    ->get();
+
+                // Filter manual sesuai kondisi di halaman notifications/index.blade.php
+                $notifCount = $notifications->filter(function ($notif) {
+                    $booking = $notif->booking;
+                    $transaction = $notif->transaction;
+
+                    return match ($notif->type_notification) {
+                        'booking_created' => $booking && $transaction
+                            && $booking->status === 'pending'
+                            && $transaction->status === 'pending_verification',
+
+                        'information' => $booking && in_array($booking->status, ['approved', 'cancelled']),
+
+                        'report_child' => true,
+
+                        'pick_up_children' => true,
+
+                        'review_parent' => true,
+
+                        default => false,
+                    };
+                })->count();
             }
 
             $view->with('notifCount', $notifCount);

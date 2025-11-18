@@ -70,11 +70,11 @@
                 </div>
 
                 <!-- Remember -->
-                <div class="flex items-center">
+                {{-- <div class="flex items-center">
                     <input type="checkbox" id="remember_me" name="remember"
                         class="h-4 w-4 text-[var(--primary)] border-gray-300 rounded focus:ring-[var(--primary)]">
                     <label for="remember_me" class="ml-2 text-sm text-gray-700 cursor-pointer">Ingat saya</label>
-                </div>
+                </div> --}}
 
                 <!-- Tombol Login -->
                 <button type="submit"
@@ -84,9 +84,6 @@
 
                 <!-- Links -->
                 <div class="text-center text-sm text-gray-600 mt-4">
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-[var(--primary)] hover:underline">Lupa password?</a>
-                    @endif
                     <div class="mt-2">
                         Belum punya akun?
                         <a href="{{ route('register') }}" class="text-[var(--primary)] font-semibold hover:underline">Daftar di sini</a>

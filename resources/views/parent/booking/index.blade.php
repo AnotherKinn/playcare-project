@@ -42,7 +42,7 @@
                         'pending' => ['label' => 'Menunggu Persetujuan', 'color' => 'warning text-dark'],
                         'approved' => ['label' => 'Disetujui Admin', 'color' => 'info text-dark'],
                         'assigned' => ['label' => 'Ditugaskan ke Staff', 'color' => 'primary'],
-                        'in_progress' => ['label' => 'Sedang Dikerjakan', 'color' => 'secondary'],
+                        'in_progress' => ['label' => 'Sedang Dikerjakan', 'color' => 'warning text-dark'],
                         'completed' => ['label' => 'Selesai', 'color' => 'success'],
                         'cancelled' => ['label' => 'Dibatalkan', 'color' => 'danger'],
                         ];

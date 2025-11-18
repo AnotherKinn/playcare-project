@@ -20,11 +20,11 @@ class ReportController extends Controller
         // Hitung total review parent
         $totalParentReviews = \App\Models\Review::count();
 
-        // Hitung total pendapatan (semua transaksi yang confirmed)
-        $totalIncome = \App\Models\Transaction::where('status', 'confirmed')->sum('amount');
+        // Hitung total pendapatan (semua transaksi yang success)
+        $totalIncome = \App\Models\Transaction::where('status', 'success')->sum('amount');
 
-        // Hitung total transaksi yang confirmed
-        $totalTransactions = \App\Models\Transaction::where('status', 'confirmed')->count();
+        // Hitung total transaksi yang success
+        $totalTransactions = \App\Models\Transaction::where('status', 'success')->count();
 
         return view('admin.reports.index', compact(
             'totalStaffReports',
@@ -52,52 +52,35 @@ class ReportController extends Controller
         return view('admin.reports.parent-review.index', compact('reviews'));
     }
 
+
     public function indexIncomeReport()
     {
-        // Ambil bulan & tahun saat ini
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
-
-        // Hitung total pendapatan dan transaksi bulan ini
-        $totalIncome = Transaction::where('status', 'confirmed')
-            ->whereMonth('paid_at', $currentMonth)
-            ->whereYear('paid_at', $currentYear)
-            ->sum('amount');
-
-        $totalTransactions = Transaction::where('status', 'confirmed')
-            ->whereMonth('paid_at', $currentMonth)
-            ->whereYear('paid_at', $currentYear)
-            ->count();
-
-        // Simpan atau update laporan ke tabel income_reports
-        IncomeReport::updateOrCreate(
-            ['month' => $currentMonth, 'year' => $currentYear],
-            [
-                'total_income' => $totalIncome,
-                'total_transactions' => $totalTransactions,
-                'created_by' => Auth::id(),
-            ]
-        );
-
-        // Data untuk Chart.js
-        $monthlyIncome = IncomeReport::orderBy('year')
+        // Ambil seluruh transaksi sukses dikelompokkan per bulan
+        $monthlyIncome = Transaction::where('status', 'success')
+            ->whereNotNull('paid_at')
+            ->selectRaw('MONTH(paid_at) as month, YEAR(paid_at) as year, SUM(amount) as total_income')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
             ->orderBy('month')
             ->get();
 
-        // Konversi data ke format label dan value
-        $months = $monthlyIncome->map(function ($report) {
-            return date('F', mktime(0, 0, 0, $report->month, 1)) . ' ' . $report->year;
-        });
+        $months = $monthlyIncome->map(function ($r) {
+            return date('F', mktime(0, 0, 0, $r->month, 1)) . ' ' . $r->year;
+        })->toArray();
 
-        $totals = $monthlyIncome->pluck('total_income');
+        $totals = $monthlyIncome->pluck('total_income')
+            ->map(fn($v) => (int) $v)
+            ->values();
 
-        // Ambil semua transaksi (detail)
+        // Transaksi list
         $transactions = Transaction::with(['booking.parent'])
+            ->where('status', 'success')
             ->latest()
             ->get();
 
         return view('admin.reports.income-report.index', compact('months', 'totals', 'transactions'));
     }
+
 
     public function indexChildrenReport()
     {

@@ -7,6 +7,7 @@ use App\Events\StaffAssigned;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Notification;
+use App\Models\StaffSchedule;
 use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -20,36 +21,52 @@ class BookingController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $query = Booking::with(['parent', 'child', 'transaction']);
 
-        $bookings = Booking::with(['parent', 'child', 'transaction', 'staff'])
-            ->when($search, function ($query, $search) {
-                $query->whereHas('parent', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })->orWhereHas('child', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
+        // 🔍 Fitur pencarian (case-insensitive)
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('parent', function ($sub) use ($search) {
+                    $sub->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
+                })->orWhereHas('child', function ($sub) use ($search) {
+                    $sub->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
                 });
-            })
-            ->latest()
-            ->get();
-        // di BookingController@index (atau saat loop di view)
-        $bookings = Booking::with(['transaction'])->get();
+            });
+        }
 
-        // contoh saat mengirim ke view, kamu bisa juga map urlnya:
-        // not required — bisa dipanggil langsung di blade
+        // 🔥 Filter booking yang:
+        // 1. Status transaksi = pending_verification
+        // 2. ATAU status booking termasuk: approved, in_progress, assigned, completed
+        $query->where(function ($q) {
+            $q->whereHas('transaction', function ($t) {
+                $t->where('status', 'pending_verification');
+            })
+                ->orWhere(function ($b) {
+                    $b->whereIn('status', [
+                        'approved',
+                        'in_progress',
+                        'assigned',
+                        'completed'
+                    ]);
+                });
+        });
+
+        // 🔽 Urutkan & paginate
+        $bookings = $query->latest()->paginate(10)->withQueryString();
+
+        // 🔗 Tambahkan URL bukti pembayaran
         foreach ($bookings as $b) {
-            // $b->transaction->payment_proof = 'payment_proof/xxx.jpg'
             $b->proof_url = $b->transaction?->payment_proof
                 ? Storage::url($b->transaction->payment_proof)
                 : null;
         }
 
-        // Statistik ringkas
+        // 📊 Statistik
         $stats = [
-            'total' => Booking::count(),
-            'pending' => Booking::where('status', 'pending')->count(),
-            'approved' => Booking::where('status', 'approved')->count(),
-            'rejected' => Booking::where('status', 'cancelled')->count(),
+            'total'     => Booking::count(),
+            'pending'   => Booking::whereHas('transaction', fn($q) => $q->where('status', 'pending_verification'))->count(),
+            'approved'  => Booking::where('status', 'approved')->count(),
+            'rejected'  => Booking::where('status', 'cancelled')->count(),
             'completed' => Booking::where('status', 'completed')->count(),
         ];
 
@@ -58,64 +75,79 @@ class BookingController extends Controller
         return view('admin.booking.index', compact('bookings', 'stats', 'staffs'));
     }
 
+
+
+
+
     /**
      * Verifikasi booking: disetujui atau ditolak.
      */
     public function verify(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'nullable|in:disetujui,ditolak,menunggu',
-        ]);
+        // $request->validate([
+        //     'status' => 'nullable|in:disetujui,ditolak,menunggu',
+        // ]);
 
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with('transaction')->findOrFail($id);
         $booking->status = 'approved';
         $booking->save();
 
+        if ($booking->transaction) {
+            $booking->transaction->status = 'success';
+            $booking->transaction->paid_at = now();
+            $booking->transaction->save();
+        }
+
+
+        // Buat notifikasi ke parent
         Notification::create([
             'user_id' => $booking->parent_id,
             'booking_id' => $booking->id,
             'type_notification' => 'information',
-            'message' => $booking->status === 'approved'
-                ? 'Booking kamu sudah disetujui oleh admin.'
-                : 'Booking kamu ditolak oleh admin.',
+            'message' => 'Booking kamu sudah disetujui oleh admin.',
         ]);
 
-
+        // Broadcast event real-time
         broadcast(new BookingVerified($booking->parent_id, 'approved', 'Booking kamu sudah disetujui!'));
 
-
-        return redirect()->route('admin.booking.index')->with('success', 'Status booking berhasil diperbarui!');
+        return redirect()->route('admin.booking.index')->with('success', 'Status booking & transaksi berhasil diperbarui!');
     }
 
     public function rejected(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'nullable|in:disetujui,ditolak,menunggu',
-        ]);
+        // $request->validate([
+        //     'status' => 'nullable|in:disetujui,ditolak,menunggu',
+        // ]);
 
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with('transaction')->findOrFail($id);
         $booking->status = 'cancelled';
         $booking->save();
 
+        // Update status transaksi
+        if ($booking->transaction) {
+            $booking->transaction->status = 'failed';
+            $booking->transaction->save();
+        }
+
+        // Buat notifikasi ke parent
         Notification::create([
             'user_id' => $booking->parent_id,
             'booking_id' => $booking->id,
             'type_notification' => 'information',
-            'message' => $booking->status === 'approved'
-                ? 'Booking kamu sudah disetujui oleh admin.'
-                : 'Booking kamu ditolak oleh admin.',
+            'message' => 'Booking kamu ditolak oleh admin.',
         ]);
 
+        // Broadcast event real-time
         broadcast(new BookingVerified($booking->parent_id, 'cancelled', 'Booking kamu gagal diverifikasi admin!'));
 
-
-        return redirect()->route('admin.booking.index')->with('success', 'Status booking berhasil ditolak!');
+        return redirect()->route('admin.booking.index')->with('success', 'Status booking & transaksi berhasil ditolak!');
     }
+
 
     /**
      * Tampilkan form assign staff ke booking.
      */
-    public function assignForm($id)
+    public function assignForm(Request $request, $id)
     {
         $booking = Booking::with(['parent', 'child'])->findOrFail($id);
         $staffs = User::where('role', 'staff')->get();
@@ -128,26 +160,53 @@ class BookingController extends Controller
      */
     public function assignStaff(Request $request, $id)
     {
+        $booking = Booking::with('transaction')->findOrFail($id);
+
+        if (
+            $booking->status === 'pending' ||
+            ($booking->transaction && $booking->transaction->status === 'pending_verification')
+        ) {
+            return redirect()->back()->with('error', 'Booking belum diverifikasi!');
+        }
+
         $request->validate([
             'staff_id' => 'required|exists:users,id',
         ]);
 
-        $booking = Booking::findOrFail($id);
+        // assign staff ke booking
         $booking->staff_id = $request->staff_id;
         $booking->status = 'assigned';
         $booking->save();
 
-        // kirim event real-time ke staff terkait
+        // update atau buat staff schedule
+        $staffSchedule = StaffSchedule::where('staff_id', $request->staff_id)
+            ->whereNull('booking_id') // pastikan ambil slot kosong
+            ->first();
+
+        if ($staffSchedule) {
+            $staffSchedule->update([
+                'booking_id' => $booking->id,
+                'status' => 'assigned',
+            ]);
+        } else {
+            StaffSchedule::create([
+                'staff_id' => $request->staff_id,
+                'booking_id' => $booking->id,
+                'status' => 'assigned',
+            ]);
+        }
+
         event(new StaffAssigned($booking, Auth::user()->name));
 
         return redirect()->route('admin.booking.index')->with('success', 'Staff berhasil ditugaskan!');
     }
 
 
+
     /**
      * Tandai booking sudah selesai (biasanya dari laporan staff).
      */
-    public function markAsFinished($id)
+    public function markAsFinished(Request $request, $id)
     {
         $booking = Booking::findOrFail($id);
         $booking->status = 'completed';
@@ -159,7 +218,7 @@ class BookingController extends Controller
     /**
      * Hapus data booking (opsional, kalau admin ingin menghapus data lama).
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $booking = Booking::findOrFail($id);
         $booking->delete();

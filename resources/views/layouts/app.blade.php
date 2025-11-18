@@ -10,6 +10,7 @@
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
         .shadow-soft-card {
@@ -31,7 +32,6 @@
     </script>
 
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-light">
@@ -40,6 +40,8 @@
     @auth
     @if(Auth::user()->role === 'parent')
     @include('layouts.navbar-mini')
+    @elseif(Auth::user()->role === 'admin')
+    @include('layouts.navbar-mini-admin')
     @elseif(Auth::user()->role === 'staff')
     @include('layouts.nav-staff')
     @endif
@@ -89,6 +91,7 @@
         adjustLayout();
 
     </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </body>
 
 </html>

@@ -35,7 +35,7 @@
                     <tr>
                         <th>No</th>
                         <th>Orang Tua</th>
-                        <th>Anak</th>
+                        <th>Kategori Feedback</th>
                         <th>Rating</th>
                         <th>Review</th>
                         <th>Tanggal</th>
@@ -46,7 +46,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $review->parent?->name ?? '-' }}</td>
-                        <td>{{ $review->booking?->child_name ?? '-' }}</td>
+                        <td>{{ $review->feedback_category ?? '-' }}</td>
                         <td>{{ $review->rating }} ⭐</td>
                         <td>{{ $review->comment }}</td>
                         <td>{{ $review->created_at->format('d M Y') }}</td>
@@ -65,7 +65,7 @@
             @forelse($reviews as $index => $review)
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">#{{ $index + 1 }} {{ $review->booking?->child_name ?? '-' }}</h5>
+                    <h5 class="card-title">#{{ $index + 1 }}</h5>
                     <p class="mb-1"><strong>Parent:</strong> {{ $review->parent?->name ?? '-' }}</p>
                     <p class="mb-1"><strong>Rating:</strong> {{ $review->rating }} ⭐</p>
                     <p class="mb-1"><strong>Review:</strong> {{ $review->comment }}</p>

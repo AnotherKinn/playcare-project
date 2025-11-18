@@ -96,9 +96,11 @@
                                 </div>
                                 @php
                                     $badgeClass = match($booking->status) {
-                                        'menunggu pembayaran' => 'bg-warning',
-                                        'aktif' => 'bg-info text-dark',
-                                        'selesai' => 'bg-success',
+                                        'pending' => 'bg-warning text-dark',
+                                        'approved' => 'bg-info text-dark',
+                                        'assigned' => 'bg-primary text-dark',
+                                        'in_progress' => 'bg-warning text-dark',
+                                        'completed' => 'bg-success text-dark',
                                         default => 'bg-secondary'
                                     };
                                 @endphp

@@ -1,9 +1,29 @@
 import './bootstrap';
 import {
-    Chart
+    Chart,
+    registerables
 } from 'chart.js';
+Chart.register(...registerables);
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
+
+// Import Leaflet
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Import icon marker (fix Vite)
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Perbaikan path icon Leaflet (WAJIB untuk Vite)
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: '/images/vendor/leaflet/marker-icon-2x.png',
+    iconUrl: '/images/vendor/leaflet/marker-icon.png',
+    shadowUrl: '/images/vendor/leaflet/marker-shadow.png',
+});
 
 window.Alpine = Alpine;
 window.Chart = Chart;
@@ -11,6 +31,35 @@ Alpine.start();
 
 const userId = window.Laravel?.user?.id??null;
 const userRole = window.Laravel?.user?.role??null;
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Koordinat lokasi
+    let lat = -6.423535;
+    let lon = 106.940072;
+
+    // Inisialisasi map
+    const map = L.map("map").setView([lat, lon], 16);
+
+    // Tile Online (OSM)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Marker dari URL (tanpa file di public)
+    const markerIcon = L.icon({
+        iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+        iconSize: [32, 32],  // ukuran ikon
+        iconAnchor: [16, 32], // posisi anchor
+        popupAnchor: [0, -32],
+    });
+
+    L.marker([lat, lon], { icon: markerIcon })
+        .addTo(map)
+        .bindPopup("SMKN 1 GunungPutri");
+});
+
+
+
 
 console.log("🧠 Reverb Debug Mode aktif...");
 

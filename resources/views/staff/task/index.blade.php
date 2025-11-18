@@ -2,17 +2,28 @@
     <div class="container py-4">
         <h3 class="fw-bold text-primary mb-4">📋 Daftar Tugas Staff</h3>
 
-        {{-- Filter Status --}}
+        {{-- Filter dan Pencarian --}}
         <form method="GET" class="mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <label for="filterStatus" class="fw-semibold">Filter:</label>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <label for="filterStatus" class="fw-semibold">Status:</label>
                 <select name="status" id="filterStatus" class="form-select w-auto">
-                    <option value="all">Semua</option>
-                    <option value="today">Hari Ini</option>
-                    <option value="completed">Selesai</option>
+                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>Semua</option>
+                    <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Menunggu</option>
+                    <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>Berjalan
+                    </option>
+                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
                 </select>
+
+                <input type="text" name="search" class="form-control w-auto" placeholder="Cari nama anak..."
+                    value="{{ request('search') }}">
+
+                <button type="submit" class="btn btn-primary">Filter</button>
+                @if(request('search') || request('status'))
+                <a href="{{ route('staff.task.index') }}" class="btn btn-outline-secondary">Reset</a>
+                @endif
             </div>
         </form>
+
 
         {{-- Tabel Data Tugas --}}
         <div class="table-responsive bg-white shadow-sm rounded p-3">
@@ -21,7 +32,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama Anak</th>
-                        <th>Jenis Layanan</th>
+                        <th>Durasi Penitipan</th>
                         <th>Jadwal</th>
                         <th>Status</th>
                         <th>Aksi</th>
@@ -29,41 +40,43 @@
                 </thead>
                 <tbody>
                     @forelse ($tasks as $index => $task)
-                    <tr>
+                    <tr id="taskRow{{ $task->id }}">
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $task->child->name }}</td>
-                        @if($task->service_type === 'full_day')
-                        <p>Full Day</td>
-                        @elseif($task->service_type === 'half_day')
-                        <td>Half Day</td>
-                        @elseif($task->service_type === 'playground')
-                        <td>Playground</td>
-                        @else
-                        <td>-</td>
-                        @endif
-                        <td>{{ \Carbon\Carbon::parse($task->booking_date)->translatedFormat('d M Y, H:i') }}</td>
-                        <td>
-                            @if ($task->status === 'assigned' || $task->status === 'pending')
-                            <span class="badge bg-warning text-dark">Menunggu</span>
-                            @elseif ($task->status === 'in_progress')
-                            <span class="badge bg-primary">Berjalan</span>
-                            @elseif ($task->status === 'completed')
-                            <span class="badge bg-success">Selesai</span>
+                        @if($task->time_type === 'per_hari')
+                        <p>Sehari</td>
+                            @elseif($task->time_type === 'per_jam')
+                            <td>{{ $task->duration }} Jam</td>
+                            @elseif($task->time_type === 'per_bulan')
+                            <td>Sebulan</td>
                             @else
-                            <span class="badge bg-secondary">{{ ucfirst($task->status) }}</span>
+                            <td>-</td>
                             @endif
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
-                                data-bs-target="#detailModal{{ $task->id }}">
-                                Detail
-                            </button>
+                            <td>{{ \Carbon\Carbon::parse($task->booking_date)->translatedFormat('d M Y') }}</td>
+                            <td>
+                                @if ($task->status === 'pending')
+                                <span class="badge bg-warning text-dark">Menunggu</span>
+                                @elseif($task->status === 'assigned')
+                                <span class="badge bg-warning text-dark">Ditugaskan ke staff</span>
+                                @elseif ($task->status === 'in_progress')
+                                <span class="badge bg-primary">Berjalan</span>
+                                @elseif ($task->status === 'completed')
+                                <span class="badge bg-success">Selesai</span>
+                                @else
+                                <span class="badge bg-secondary">{{ ucfirst($task->status) }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
+                                    data-bs-target="#detailModal{{ $task->id }}">
+                                    Detail
+                                </button>
 
-                            <button class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                data-bs-target="#editStatusModal{{ $task->id }}">
-                                Edit Status
-                            </button>
-                        </td>
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#editStatusModal{{ $task->id }}">
+                                    Edit Status
+                                </button>
+                            </td>
                     </tr>
 
                     {{-- Modal Detail Anak --}}
@@ -86,20 +99,20 @@
                                         <p>{{ $task->child->age }} tahun</p>
                                     </div>
                                     <div class="mb-3">
-                                        <strong>Jenis Layanan:</strong>
-                                        @if($task->service_type === 'full_day')
-                                        <p>Full Day</p>
-                                        @elseif($task->service_type === 'half_day')
-                                        <p>Half Day</p>
-                                        @elseif($task->service_type === 'playground')
-                                        <p>Playground</p>
+                                        <strong>Durasi Penitipan:</strong>
+                                        @if($task->time_type === 'per_jam')
+                                        <p>{{ $task->duration }} Jam</p>
+                                        @elseif($task->time_type === 'per_hari')
+                                        <p>Sehari</p>
+                                        @elseif($task->time_type === 'per_bulan')
+                                        <p>Sebulan</p>
                                         @else
                                         <p>-</p>
                                         @endif
                                     </div>
                                     <div class="mb-3">
                                         <strong>Jadwal:</strong>
-                                        <p>{{ \Carbon\Carbon::parse($task->booking_date)->translatedFormat('d M Y, H:i') }}
+                                        <p>{{ \Carbon\Carbon::parse($task->booking_date)->translatedFormat('d M Y') }}
                                         </p>
                                     </div>
                                     <div class="mb-3">
@@ -133,7 +146,7 @@
                                     @csrf
                                     @method('PUT')
                                     <div class="modal-body">
-                                        <p><strong>{{ $task->child->name }}</strong> — {{ $task->service_type }}</p>
+                                        <p><strong>{{ $task->child->name }}</strong></p>
                                         <div class="mb-3">
                                             <label for="statusSelect{{ $task->id }}" class="form-label">Status
                                                 Baru</label>
@@ -167,3 +180,27 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const statusForms = document.querySelectorAll("form[action*='update-status']");
+
+        statusForms.forEach(form => {
+            form.addEventListener("submit", function (e) {
+                const rowId = "taskRow" + this.getAttribute("action").split("/").pop();
+                const row = document.getElementById(rowId);
+
+                // Tambahkan animasi fade out
+                row.style.transition = "opacity 0.5s ease-out";
+                row.style.opacity = 0;
+
+                // Biar animasi sempat jalan sebelum HTTP request
+                setTimeout(() => {
+                    // Submit form setelah animasi selesai
+                    form.submit();
+                }, 400);
+            });
+        });
+    });
+
+</script>

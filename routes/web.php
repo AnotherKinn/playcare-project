@@ -32,7 +32,22 @@ use Illuminate\Support\Facades\Route;
 //     return view('splash');
 // })->name('splash');
 
+// =========================
+// 🚀 SPLASH SCREEN ROUTES
+// =========================
+
+// Arahkan root "/" ke halaman splash
 Route::get('/', function () {
+    return redirect()->route('splash');
+});
+
+// Halaman Splash Screen
+Route::get('/splash', function () {
+    return view('splash');
+})->name('splash');
+
+// Halaman Landing Page utama setelah splash
+Route::get('/landing-page', function () {
     return view('landing-page');
 })->name('landing-page');
 
@@ -117,7 +132,7 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
 
     Route::get('profile', [StaffProfileController::class, 'index'])->name('staff.profile.index');
     Route::get('profile/{id}/edit', [StaffProfileController::class, 'edit'])->name('staff.profile.edit');
-    Route::put('profile/{id}/update', [StaffReportController::class, 'update'])->name('staff.profile.update');
+    Route::put('profile/{id}/update', [StaffProfileController::class, 'update'])->name('staff.profile.update');
 
     Route::get('notification', [StaffNotificationController::class, 'index'])->name('staff.notifications.index');
 });

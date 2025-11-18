@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $transaksiPending = Transaction::where('status', 'pending')->count();
 
         // === 2. Pendapatan bulan ini ===
-        $pendapatanBulanIni = Transaction::where('status', 'confirmed')
+        $pendapatanBulanIni = Transaction::where('status', 'success')
             ->whereMonth('paid_at', now()->month)
             ->whereYear('paid_at', now()->year)
             ->sum('amount');
@@ -30,7 +30,7 @@ class DashboardController extends Controller
                 DB::raw('MONTH(paid_at) as month'),
                 DB::raw('SUM(amount) as total')
             )
-            ->where('status', 'confirmed')
+            ->where('status', 'success')
             ->whereYear('paid_at', now()->year)
             ->groupBy('month')
             ->pluck('total', 'month')

@@ -1,22 +1,31 @@
 <!-- resources/views/staff/laporan/index.blade.php -->
 <x-app-layout>
     <div class="container py-4">
+
         <h3 class="fw-bold text-primary mb-4">📝 Laporan Aktivitas Anak</h3>
 
-        {{-- Tombol Tambah Laporan --}}
-        <div class="mb-3 text-end">
-            <a href="{{ route('staff.report.create') }}" class="btn btn-primary">➕ Tambah Laporan</a>
-        </div>
+        {{-- Baris filter & aksi --}}
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
 
-        {{-- Filter Anak --}}
-        <div class="mb-3">
-            <label for="filterAnak" class="form-label fw-semibold">Filter per Anak:</label>
-            <select id="filterAnak" class="form-select" style="max-width: 300px;">
-                <option value="">Semua Anak</option>
-                @foreach ($children as $child)
-                <option value="{{ $child->id }}">{{ $child->name }}</option>
-                @endforeach
-            </select>
+            {{-- Form Pencarian --}}
+            <form method="GET" class="d-flex align-items-end gap-2 flex-grow-1" style="max-width: 300px;">
+                <div class="w-100">
+                    <label class="form-label fw-semibold">Cari Nama Anak:</label>
+                    <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama anak..."
+                        class="form-control form-control-sm">
+                </div>
+
+                <button type="submit"
+                    class="btn btn-info btn-md text-white d-flex align-items-center justify-content-center">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+
+            {{-- Tombol Tambah --}}
+            <a href="{{ route('staff.report.create') }}" class="btn btn-primary h-50 align-self-end">
+                ➕ Tambah Laporan
+            </a>
         </div>
 
         {{-- Tabel Data --}}
@@ -55,14 +64,14 @@
                         </td>
                         <td>
                             @if ($report->photo_url)
-                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
-                                data-bs-target="#fotoModal" data-photo="{{ $report->photo_url }}">
-                                📷 Lihat Foto
-                            </button>
+                            <img src="{{ $report->photo_url }}" alt="Foto Aktivitas" width="80"
+                                class="img-thumbnail rounded shadow-sm">
                             @else
                             <span class="text-muted">Tidak ada</span>
                             @endif
+
                         </td>
+
 
                         <td>
                             <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
@@ -131,15 +140,17 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modal-foto-img" src="#" alt="Foto Aktivitas" class="img-fluid rounded shadow-sm">
+                    <img id="modal-foto-img" src="" alt="Foto Aktivitas" class="img-fluid rounded shadow-sm">
                 </div>
             </div>
         </div>
     </div>
 
+
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+
             // === Preview Modal ===
             const previewModal = document.getElementById('previewLaporanModal');
             previewModal.addEventListener('show.bs.modal', function (event) {
@@ -156,24 +167,35 @@
                 const photoUrl = button.dataset.photo;
                 const wrapper = document.getElementById('preview-photo-wrapper');
                 const img = document.getElementById('preview-photo');
+
                 if (photoUrl) {
                     wrapper.classList.remove('d-none');
                     img.src = photoUrl;
                 } else {
                     wrapper.classList.add('d-none');
+                    img.src = "";
                 }
             });
 
+            // === Modal Lihat Foto ===
             const fotoModal = document.getElementById('fotoModal');
             fotoModal.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
                 const img = document.getElementById('modal-foto-img');
-                const photoUrl = button.dataset.photo;
-                img.src = photoUrl;
+                const photoUrl = button.dataset.photo || "";
+
+                // Reset dulu agar browser reload ulang gambar
+                img.src = "";
+
+                // Delay kecil agar modal sempat render
+                setTimeout(() => {
+                    img.src = photoUrl;
+                }, 10);
             });
 
         });
 
     </script>
     @endpush
+
 </x-app-layout>

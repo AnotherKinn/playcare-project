@@ -19,6 +19,7 @@ class Booking extends Model
         'time_type',
         'duration',
         'booking_date',
+        'child_photo',
         'notes',
         'total_price',
         'status'

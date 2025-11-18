@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Child;
+use App\Models\StaffSchedule;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -17,21 +18,39 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $query = Booking::with(['child', 'parent'])
-            ->where('staff_id', Auth::id());
+            ->where('staff_id', Auth::id())
+            ->whereIn('status', ['assigned', 'in_progress']); // 🔥 hanya tampilkan tugas aktif
 
-        // Filter status tugas
-        if ($request->status && $request->status !== 'all') {
-            if ($request->status === 'today') {
-                $query->whereDate('booking_date', Carbon::today());
-            } elseif ($request->status === 'completed') {
-                $query->where('status', 'completed');
+
+        // 🔍 Filter berdasarkan pencarian nama anak
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('child', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            switch ($request->status) {
+                case 'assigned':
+                    $query->where('status', 'assigned');
+                    break;
+                case 'in_progress':
+                    $query->where('status', 'in_progress');
+                    break;
+                case 'completed':
+                    // completed tidak ditampilkan di halaman
+                    $query->whereRaw('1=0');
+                    break;
             }
         }
+
 
         $tasks = $query->orderBy('booking_date', 'desc')->get();
 
         return view('staff.task.index', compact('tasks'));
     }
+
 
     /**
      * Tampilkan form tambah tugas
@@ -104,7 +123,22 @@ class TaskController extends Controller
         ]);
 
         $task = Booking::findOrFail($id);
+
         $task->update($request->only('child_id', 'service_type', 'booking_date', 'duration_hours', 'notes', 'status'));
+
+        // jika status booking selesai, update semua schedule terkait
+        if ($request->status === 'completed' && $task->staff_id) {
+            $staffSchedules = StaffSchedule::where('staff_id', $task->staff_id)
+                ->where('booking_id', $task->id)
+                ->get();
+
+            foreach ($staffSchedules as $schedule) {
+                $schedule->update([
+                    'status' => 'active',
+                    'booking_id' => null,
+                ]);
+            }
+        }
 
         return redirect()->route('staff.task.index')->with('success', 'Tugas berhasil diperbarui.');
     }
@@ -123,14 +157,31 @@ class TaskController extends Controller
     /**
      * Update status tugas (khusus tombol di modal)
      */
-    public function updateStatus(Request $request, Booking $booking)
+    public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:in_progress,completed',
+            'status' => 'required|string|in:in_progress,completed',
         ]);
 
-        $booking->update(['status' => $request->status]);
+        $task = Booking::findOrFail($id);
 
-        return redirect()->route('staff.task.index')->with('success', 'Status tugas berhasil diperbarui.');
+        // Update status booking
+        $task->update([
+            'status' => $request->status
+        ]);
+
+        // Jika tugas selesai, kosongkan jadwal staff
+        if ($request->status === 'completed' && $task->staff_id) {
+
+            StaffSchedule::where('staff_id', $task->staff_id)
+                ->where('booking_id', $task->id)
+                ->update([
+                    'status' => 'active',      // bebaskan slot jadwal
+                    'booking_id' => null       // detach booking
+                ]);
+        }
+
+        return redirect()->route('staff.task.index')
+            ->with('success', 'Status tugas berhasil diperbarui.');
     }
 }

@@ -12,6 +12,22 @@
 
     <style>
         /* rona turquoise mirip referensi */
+        /* Hapus width: 100% !important; dari #map */
+        body {
+            overflow-x: hidden;
+        }
+
+        #map {
+            height: 380px;
+            /* Sesuaikan dengan tinggi di HTML */
+            /* Jangan pakai width: 100% !important; */
+        }
+
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+        }
+
         :root {
             --pc-turquoise: #2bbec6;
             --pc-dark: #0f1724;
@@ -49,23 +65,22 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="antialiased text-slate-800">
 
     <!-- NAVBAR (sticky) -->
-    <header class="sticky top-0 z-50 bg-[color:var(--pc-turquoise)]" data-aos="fade-down" data-aos-easing="ease-in-out" data-aos-duration="600">
+    <header class="sticky top-0 z-50 bg-[color:var(--pc-turquoise)]" data-aos="fade-down" data-aos-easing="ease-in-out"
+        data-aos-duration="600">
         <div class="max-w-site mx-auto px-6 lg:px-8">
             <nav class="flex items-center justify-between h-16">
                 <!-- Logo -->
                 <a href="#" class="flex items-center gap-3 text-white">
                     <!-- simple SVG logo placeholder -->
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" class="opacity-95">
-                        <circle cx="6" cy="6" r="3" fill="white" />
-                        <circle cx="12" cy="12" r="3" fill="white" />
-                        <circle cx="18" cy="6" r="3" fill="white" />
-                    </svg>
+                    <img src="{{ asset('assets/images/logo-splash.png') }}" width="36" height="36" alt="">
                     <span class="font-semibold text-xl">PlayCare</span>
                 </a>
 
@@ -73,18 +88,8 @@
                 <div class="hidden md:flex items-center gap-6 text-white">
                     <a class="hover:underline" href="#mitra">Mitra Kami</a>
                     <a class="hover:underline" href="#tentang">Tentang Kami</a>
-                    <div class="relative group">
-                        <button class="flex items-center gap-1">Program <svg class="w-3 h-3" viewBox="0 0 20 20">
-                                <path fill="white" d="M5 7l5 5 5-5z" /></svg></button>
-                        <!-- simple dropdown (non functional placeholder) -->
-                        <div class="absolute hidden group-hover:block mt-2 right-0 bg-white text-slate-700 rounded shadow p-2">
-                            <a class="block px-4 py-1 hover:bg-slate-50 rounded" href="#">Program A</a>
-                            <a class="block px-4 py-1 hover:bg-slate-50 rounded" href="#">Program B</a>
-                        </div>
-                    </div>
                     <a class="hover:underline" href="#faq">FAQ</a>
-                    <a class="hover:underline" href="#artikel">Artikel</a>
-                    <a class="hover:underline" href="#karir">Karir</a>
+                    <a class="hover:underline" href="#testimoni">Testimoni</a>
 
                     <a href="{{ route('login') }}"
                         class="ml-2 inline-block rounded-full border border-white py-1 px-4 hover:bg-white/10 transition">Gabung
@@ -107,10 +112,8 @@
             <div class="px-6 pb-6 space-y-2">
                 <a class="block text-white py-2" href="#mitra">Mitra Kami</a>
                 <a class="block text-white py-2" href="#tentang">Tentang Kami</a>
-                <a class="block text-white py-2" href="#program">Program</a>
                 <a class="block text-white py-2" href="#faq">FAQ</a>
-                <a class="block text-white py-2" href="#artikel">Artikel</a>
-                <a class="block text-white py-2" href="#karir">Karir</a>
+                <a class="block text-white py-2" href="#testimoni">Testimoni</a>
                 <a class="block text-white py-2 border border-white rounded-full inline-block text-center"
                     href="{{ route('login') }}">Gabung Kami</a>
             </div>
@@ -118,17 +121,19 @@
     </header>
 
     <!-- HERO -->
-    <section class="hero-texture bg-cover bg-center" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <section class="hero-texture bg-cover bg-center" data-aos="fade-up" data-aos-easing="ease-in-out"
+        data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8 py-24 md:py-28">
             <div class="flex flex-col-reverse lg:flex-row items-center gap-8">
                 <!-- Left: Headline -->
-                <div class="w-full lg:w-1/2 text-center lg:text-left" data-aos="fade-right" data-aos-easing="ease-in-out" data-aos-duration="700" data-aos-delay="100">
+                <div class="w-full lg:w-1/2 text-center lg:text-left" data-aos="fade-right"
+                    data-aos-easing="ease-in-out" data-aos-duration="700" data-aos-delay="100">
                     <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-lg">Aplikasi Super
                         Parenting.<br class="hidden lg:block" />Solusi Pengasuhan Anak yang Terintegrasi</h1>
                     <p class="mt-4 text-white/90 max-w-xl">Pantau aktivitas, transaksi, dan laporan anak secara digital.
                         Terhubung langsung dengan mitra daycare dan layanan pengasuhan terpercaya.</p>
                     <div class="mt-6 flex justify-center lg:justify-start gap-4">
-                        <a href="#daftar"
+                        <a href="{{ route('login') }}"
                             class="inline-block bg-white text-[color:var(--pc-turquoise)] font-semibold py-2 px-5 rounded-full shadow">Gabung
                             Sekarang</a>
                         <a href="#tentang"
@@ -138,7 +143,8 @@
                 </div>
 
                 <!-- Right: Mockup phone -->
-                <div class="w-full lg:w-1/2 flex justify-center lg:justify-end" data-aos="fade-left" data-aos-easing="ease-in-out" data-aos-duration="700" data-aos-delay="200">
+                <div class="w-full lg:w-1/2 flex justify-center lg:justify-end" data-aos="fade-left"
+                    data-aos-easing="ease-in-out" data-aos-duration="700" data-aos-delay="200">
                     <div class="relative">
                         <!-- phone mockup placeholder -->
 
@@ -183,78 +189,125 @@
     </section>
 
     <!-- WHY CHOOSE / FEATURES -->
-    <section id="features" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <!-- WHY CHOOSE / FEATURES -->
+    <section id="features" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out"
+        data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8">
-            <div class="text-center" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-delay="100">
-                <h3 class="text-[color:var(--pc-turquoise)] font-semibold tracking-wider">MENGAPA MEMILIH PLAYCARE</h3>
-                <div class="mt-4 inline-flex gap-2 items-center bg-white rounded-full p-1">
-                    <button id="btn-orangtua"
-                        class="px-5 py-2 rounded-full toggle-active text-[color:var(--pc-turquoise)] font-medium">Bagi
-                        Orang Tua</button>
-                    <button id="btn-mitra" class="px-5 py-2 rounded-full text-slate-600">Bagi Mitra</button>
-                </div>
+
+            <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-[color:var(--pc-turquoise)] font-semibold tracking-wider">
+                    MENGAPA MEMILIH PLAYCARE
+                </h3>
             </div>
 
             <!-- grid fitur -->
-            <div id="features-grid" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-delay="200">
-                <!-- card 1 -->
-                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up" data-aos-delay="300">
+            <div id="features-grid" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6" data-aos="fade-up"
+                data-aos-delay="200">
+
+                <!-- card 1 – Pencarian Fleksibel -->
+                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up"
+                    data-aos-delay="300">
                     <div class="flex-1">
                         <h4 class="text-lg font-bold">Pencarian Fleksibel</h4>
-                        <p class="mt-2 text-sm text-slate-500">Memudahkan orang tua melakukan pencarian fasilitas
-                            pengasuhan anak (daycare, playground, kelas aktivitas, dll).</p>
+                        <p class="mt-2 text-sm text-slate-500">
+                            Memudahkan orang tua melakukan pencarian fasilitas pengasuhan anak.
+                        </p>
                     </div>
+
                     <div class="w-20 h-20 bg-[color:var(--pc-turquoise)] rounded-xl flex items-center justify-center">
-                        <!-- icon placeholder -->
-                        <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2v20" stroke="white" stroke-width="2" stroke-linecap="round" /></svg>
+                        <!-- Search Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-search-check-icon lucide-search-check">
+                            <path d="m8 11 2 2 4-4" />
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+
+                        </svg>
                     </div>
                 </article>
 
-                <!-- card 2 -->
-                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up" data-aos-delay="400">
+                <!-- card 2 – Transaksi Mudah -->
+                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up"
+                    data-aos-delay="400">
                     <div class="flex-1">
                         <h4 class="text-lg font-bold">Transaksi Mudah</h4>
-                        <p class="mt-2 text-sm text-slate-500">Transaksi pembayaran yang mudah dari mana saja dan kapan
-                            saja.</p>
+                        <p class="mt-2 text-sm text-slate-500">
+                            Transaksi pembayaran yang mudah dari mana saja dan kapan saja.
+                        </p>
                     </div>
+
                     <div class="w-20 h-20 bg-[color:var(--pc-turquoise)] rounded-xl flex items-center justify-center">
-                        <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none">
-                            <rect width="14" height="10" x="4" y="6" rx="2" stroke="white" stroke-width="2" /></svg>
+                        <!-- Credit Card Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-hand-coins-icon lucide-hand-coins">
+                            <path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17" />
+                            <path
+                                d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" />
+                            <path d="m2 16 6 6" />
+                            <circle cx="16" cy="9" r="2.9" />
+                            <circle cx="6" cy="5" r="3" /></svg>
                     </div>
                 </article>
 
-                <!-- card 3 -->
-                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up" data-aos-delay="500">
+                <!-- card 3 – Monitoring Terintegrasi -->
+                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up"
+                    data-aos-delay="500">
                     <div class="flex-1">
                         <h4 class="text-lg font-bold">Monitoring Terintegrasi</h4>
-                        <p class="mt-2 text-sm text-slate-500">Pemantauan aktivitas anak dari dalam ponsel orang tua
-                            secara langsung dan terintegrasi.</p>
+                        <p class="mt-2 text-sm text-slate-500">
+                            Pemantauan aktivitas anak secara langsung dari ponsel orang tua.
+                        </p>
                     </div>
+
                     <div class="w-20 h-20 bg-[color:var(--pc-turquoise)] rounded-xl flex items-center justify-center">
-                        <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 12h18" stroke="white" stroke-width="2" /></svg>
+                        <!-- Eye Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-scan-heart-icon lucide-scan-heart">
+                            <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                            <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                            <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                            <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                            <path
+                                d="M7.828 13.07A3 3 0 0 1 12 8.764a3 3 0 0 1 4.172 4.306l-3.447 3.62a1 1 0 0 1-1.449 0z" />
+                        </svg>
                     </div>
                 </article>
 
-                <!-- card 4 -->
-                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up" data-aos-delay="600">
+                <!-- card 4 – Pelaporan Digital -->
+                <article class="bg-white rounded-xl p-6 flex items-center gap-6 soft-card" data-aos="fade-up"
+                    data-aos-delay="600">
                     <div class="flex-1">
                         <h4 class="text-lg font-bold">Pelaporan Digital</h4>
-                        <p class="mt-2 text-sm text-slate-500">Digitalisasi pelaporan aktivitas anak sehari-hari
-                            sehingga orang tua selalu update.</p>
+                        <p class="mt-2 text-sm text-slate-500">
+                            Digitalisasi pelaporan aktivitas anak sehingga orang tua selalu update.
+                        </p>
                     </div>
+
                     <div class="w-20 h-20 bg-[color:var(--pc-turquoise)] rounded-xl flex items-center justify-center">
-                        <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none">
-                            <path d="M4 6h16v12H4z" stroke="white" stroke-width="2" /></svg>
+                        <!-- Document Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-book-open-text-icon lucide-book-open-text">
+                            <path d="M12 7v14" />
+                            <path d="M16 12h2" />
+                            <path d="M16 8h2" />
+                            <path
+                                d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+                            <path d="M6 12h2" />
+                            <path d="M6 8h2" /></svg>
                     </div>
                 </article>
+
             </div>
         </div>
     </section>
 
     <!-- ABOUT -->
-    <section id="tentang" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <section id="tentang" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out"
+        data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div data-aos="fade-right" data-aos-easing="ease-in-out" data-aos-delay="100">
@@ -277,7 +330,8 @@
     </section>
 
     <!-- FITUR UTAMA KAMI -->
-    <section id="fitur-utama" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <section id="fitur-utama" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out"
+        data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8">
             <div class="text-center mb-10" data-aos="fade-up" data-aos-delay="100">
                 <span class="text-[color:var(--pc-turquoise)] text-sm tracking-wide font-semibold">FITUR BOONDA</span>
@@ -340,8 +394,7 @@
                 </div>
 
                 <!-- Center image phone mockup -->
-                <div
-                    class="flex-shrink-0 max-w-xs mx-auto lg:mx-0 lg:max-w-[240px] shadow-soft-card rounded-3xl overflow-hidden"
+                <div class="flex-shrink-0 max-w-xs mx-auto lg:mx-0 lg:max-w-[240px] shadow-soft-card rounded-3xl overflow-hidden"
                     data-aos="zoom-in" data-aos-delay="300">
                     <img src="https://www.boonda.id/img/fitur/Fitur%20Pencarian.png" alt="Fitur Utama PlayCare"
                         class="w-[180px] h-[380px] object-contain">
@@ -404,8 +457,9 @@
     </section>
 
     <!-- Floating WhatsApp -->
-    <a href="https://wa.me/6281234567890" target="_blank"
-        class="fixed right-6 bottom-6 bg-[color:var(--pc-turquoise)] w-14 h-14 rounded-full flex items-center justify-center drop-shadow-lg" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-delay="100">
+    <a href="https://wa.me/6289601184436" target="_blank"
+        class="fixed right-6 bottom-6 bg-[color:var(--pc-turquoise)] w-14 h-14 rounded-full flex items-center justify-center drop-shadow-lg"
+        data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-delay="100">
         <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none">
             <path d="M21 12.1a9 9 0 1 0-2.6 6.1L21 21l-2.8-0.7A9 9 0 0 0 21 12.1z" fill="white" /></svg>
     </a>
@@ -421,7 +475,8 @@
 
             <div class="space-y-4">
                 <!-- FAQ item 1 -->
-                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up"
+                    data-aos-delay="200">
                     <div class="flex justify-between items-center">
                         <h4 class="font-semibold text-slate-800">Apakah PlayCare tersedia di seluruh Indonesia?</h4>
                         <span class="text-[color:var(--pc-turquoise)] faq-icon">+</span>
@@ -433,7 +488,8 @@
                 </div>
 
                 <!-- FAQ item 2 -->
-                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up" data-aos-delay="300">
+                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up"
+                    data-aos-delay="300">
                     <div class="flex justify-between items-center">
                         <h4 class="font-semibold text-slate-800">Apakah data anak saya aman?</h4>
                         <span class="text-[color:var(--pc-turquoise)] faq-icon">+</span>
@@ -445,7 +501,8 @@
                 </div>
 
                 <!-- FAQ item 3 -->
-                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up" data-aos-delay="400">
+                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up"
+                    data-aos-delay="400">
                     <div class="flex justify-between items-center">
                         <h4 class="font-semibold text-slate-800">Bagaimana cara bergabung sebagai mitra daycare?</h4>
                         <span class="text-[color:var(--pc-turquoise)] faq-icon">+</span>
@@ -457,7 +514,8 @@
                 </div>
 
                 <!-- FAQ item 4 -->
-                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up" data-aos-delay="500">
+                <div class="bg-white rounded-xl shadow soft-card p-5 cursor-pointer faq-item" data-aos="fade-up"
+                    data-aos-delay="500">
                     <div class="flex justify-between items-center">
                         <h4 class="font-semibold text-slate-800">Apakah PlayCare gratis untuk orang tua?</h4>
                         <span class="text-[color:var(--pc-turquoise)] faq-icon">+</span>
@@ -471,8 +529,30 @@
         </div>
     </section>
 
+    <!-- LOCATION SECTION (DIPERBAIKI) -->
+    <!-- LOCATION SECTION -->
+    <section id="location" class="py-5 bg-light" style="transform: translateX(40px);">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary" style="font-size: 24px; font-weight: bold; color: #2bbec6;">Lokasi PlayCare</h2>
+                <p class="text-muted" style="font-size: 20px;">Temukan lokasi kami di peta berikut.</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <!-- Gunakan mx-auto untuk pusatkan horizontal -->
+                    <div id="map" style="height: 380px; border-radius: 14px; overflow: hidden;" class="mx-auto">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
     <!-- TESTIMONI -->
-    <section id="testimoni" class="py-16 bg-slate-50" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <section id="testimoni" class="py-16 bg-slate-50" data-aos="fade-up" data-aos-easing="ease-in-out"
+        data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8 text-center" data-aos="fade-up" data-aos-delay="100">
             <h3 class="text-[color:var(--pc-turquoise)] font-semibold tracking-wider">APA KATA MEREKA</h3>
             <p class="mt-2 text-slate-500 mb-10">Pendapat para orang tua dan mitra tentang PlayCare</p>
@@ -488,7 +568,8 @@
                 <div class="overflow-hidden">
                     <div id="sliderTesti" class="flex transition-transform duration-500 ease-in-out">
                         <!-- Card 1 -->
-                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up" data-aos-delay="200">
+                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up"
+                            data-aos-delay="200">
                             <div class="bg-white p-6 rounded-xl shadow soft-card h-full flex flex-col justify-between">
                                 <p class="text-slate-600 italic">“Aplikasi ini membantu banget buat pantau anak waktu di
                                     daycare. Laporannya lengkap dan real-time.”</p>
@@ -500,7 +581,8 @@
                         </div>
 
                         <!-- Card 2 -->
-                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up" data-aos-delay="300">
+                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up"
+                            data-aos-delay="300">
                             <div class="bg-white p-6 rounded-xl shadow soft-card h-full flex flex-col justify-between">
                                 <p class="text-slate-600 italic">“PlayCare mempermudah administrasi di daycare kami.
                                     Transaksi dan laporan semuanya otomatis.”</p>
@@ -512,7 +594,8 @@
                         </div>
 
                         <!-- Card 3 -->
-                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up" data-aos-delay="400">
+                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up"
+                            data-aos-delay="400">
                             <div class="bg-white p-6 rounded-xl shadow soft-card h-full flex flex-col justify-between">
                                 <p class="text-slate-600 italic">“Fitur laporannya detail banget, jadi saya tahu anak
                                     makan apa, tidur berapa lama, dan belajar apa.”</p>
@@ -524,7 +607,8 @@
                         </div>
 
                         <!-- Card 4 -->
-                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up" data-aos-delay="500">
+                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up"
+                            data-aos-delay="500">
                             <div class="bg-white p-6 rounded-xl shadow soft-card h-full flex flex-col justify-between">
                                 <p class="text-slate-600 italic">“Bisa komunikasi langsung sama orang tua lewat
                                     aplikasi, sangat membantu sebagai pengasuh.”</p>
@@ -536,7 +620,8 @@
                         </div>
 
                         <!-- Card 5 -->
-                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up" data-aos-delay="600">
+                        <div class="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-3" data-aos="fade-up"
+                            data-aos-delay="600">
                             <div class="bg-white p-6 rounded-xl shadow soft-card h-full flex flex-col justify-between">
                                 <p class="text-slate-600 italic">“Desainnya lucu dan mudah digunakan. Anak saya jadi
                                     makin betah di daycare!”</p>
@@ -559,7 +644,8 @@
     </section>
 
     <!-- CTA UNTUK ORANG TUA -->
-    <section id="cta-parent" class="py-16 bg-[color:var(--pc-turquoise)] text-white" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <section id="cta-parent" class="py-16 bg-[color:var(--pc-turquoise)] text-white" data-aos="fade-up"
+        data-aos-easing="ease-in-out" data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8 text-center" data-aos="fade-up" data-aos-delay="100">
             <h3 class="text-lg font-semibold tracking-wider uppercase text-white/90">Untuk Orang Tua</h3>
             <h2 class="mt-2 text-4xl font-extrabold drop-shadow-lg">Bergabunglah dengan PlayCare Sekarang!</h2>
@@ -575,7 +661,8 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-[#259fa9] text-white mt-12" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
+    <footer class="bg-[#259fa9] text-white mt-12" data-aos="fade-up" data-aos-easing="ease-in-out"
+        data-aos-duration="700">
         <div class="max-w-site mx-auto px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Tentang -->
             <div data-aos="fade-up" data-aos-delay="100">
@@ -593,22 +680,67 @@
                     <li><a href="#features" class="hover:underline">Fitur</a></li>
                     <li><a href="#tentang" class="hover:underline">Tentang</a></li>
                     <li><a href="#faq" class="hover:underline">FAQ</a></li>
-                    <li><a href="#artikel" class="hover:underline">Artikel</a></li>
-                    <li><a href="#daftar" class="hover:underline">Gabung</a></li>
+                    <li><a href="{{ route('login') }}" class="hover:underline">Gabung</a></li>
                 </ul>
             </div>
 
             <!-- Kontak -->
             <div data-aos="fade-up" data-aos-delay="300">
                 <h5 class="font-semibold mb-4">Kontak</h5>
-                <ul class="space-y-2 text-white/90 text-sm">
-                    <li>Email: support@playcare.id</li>
-                    <li>Telepon: +62 812-3456-7890</li>
-                    <li>Alamat: Jl. Contoh No. 123, Jakarta</li>
+
+                <ul class="space-y-3 text-white/90 text-sm">
+
+                    <!-- Email -->
+                    <li class="flex items-center space-x-3">
+                        <!-- Ikon Email -->
+                        <span class="p-2 bg-white/10 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail-icon lucide-mail"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                        </span>
+
+                        <!-- Teks -->
+                        <a href="mailto:emajulia1509@gmail.com" class="hover:underline hover:text-white transition">
+                            Email: support@playcare.id
+                        </a>
+                    </li>
+
+                    <!-- WhatsApp -->
+                    <li class="flex items-center space-x-3">
+                        <!-- Ikon WA -->
+                        <span class="p-2 bg-white/10 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="currentColor"
+                                viewBox="0 0 24 24">
+                                <path d="M12 2a10 10 0 0 0-8.94 14.37L2 22l5.76-1.93A10 10 0 1 0 12 2z" />
+                            </svg>
+                        </span>
+
+                        <!-- Teks -->
+                        <a href="https://wa.me/6282315390811" target="_blank"
+                            class="hover:underline hover:text-white transition">
+                            WhatsApp: +62 823-1539-0811
+                        </a>
+                    </li>
+
+                    <!-- Instagram -->
+                    <li class="flex items-center space-x-3">
+                        <!-- Ikon IG -->
+                        <span class="p-2 bg-white/10 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram-icon lucide-instagram"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        </span>
+
+                        <!-- Teks -->
+                        <a href="https://www.instagram.com/playcaree?utm_source=qr&igsh=MnNuc2o0ajE3ODh6" target="_blank"
+                            class="hover:underline hover:text-white transition">
+                            Instagram: @playcaree
+                        </a>
+                    </li>
+
                 </ul>
             </div>
+
+
         </div>
-        <div class="border-t border-white/30 text-center text-sm text-white/70 py-4" data-aos="fade-up" data-aos-delay="400">
+        <div class="border-t border-white/30 text-center text-sm text-white/70 py-4" data-aos="fade-up"
+            data-aos-delay="400">
             © <span id="year-footer"></span> PlayCare. Semua hak dilindungi.
         </div>
     </footer>
@@ -620,40 +752,49 @@
             duration: 800,
             once: true,
         });
+
     </script>
 
     <script>
         // Mobile menu toggle
         const btnMobile = document.getElementById('btn-mobile');
         const mobileMenu = document.getElementById('mobile-menu');
-        btnMobile.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+
+        if (btnMobile && mobileMenu) {
+            btnMobile.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
 
         // toggle fitur simple (switch active)
         const btnOrtu = document.getElementById('btn-orangtua');
         const btnMitra = document.getElementById('btn-mitra');
         const grid = document.getElementById('features-grid');
 
-        btnOrtu.addEventListener('click', () => {
-            btnOrtu.classList.add('toggle-active');
-            btnOrtu.classList.remove('text-slate-600');
-            btnMitra.classList.remove('toggle-active');
-            btnMitra.classList.add('text-slate-600');
-            // (Optional) change grid content if needed
-        });
+        if (btnOrtu && btnMitra) {
+            btnOrtu.addEventListener('click', () => {
+                btnOrtu.classList.add('toggle-active');
+                btnOrtu.classList.remove('text-slate-600');
+                btnMitra.classList.remove('toggle-active');
+                btnMitra.classList.add('text-slate-600');
+            });
 
-        btnMitra.addEventListener('click', () => {
-            btnMitra.classList.add('toggle-active');
-            btnMitra.classList.remove('text-slate-600');
-            btnOrtu.classList.remove('toggle-active');
-            btnOrtu.classList.add('text-slate-600');
-            // (Optional) change grid content for mitra
-        });
+            btnMitra.addEventListener('click', () => {
+                btnMitra.classList.add('toggle-active');
+                btnMitra.classList.remove('text-slate-600');
+                btnOrtu.classList.remove('toggle-active');
+                btnOrtu.classList.add('text-slate-600');
+            });
+        }
 
         // Update footer year
-        document.getElementById('year-footer').textContent = new Date().getFullYear();
+        const yearFooter = document.getElementById('year-footer');
+        if (yearFooter) {
+            yearFooter.textContent = new Date().getFullYear();
+        }
+
     </script>
+
 
     <script>
         // FAQ toggle
@@ -665,6 +806,7 @@
                 icon.textContent = answer.classList.contains('hidden') ? '+' : '–';
             });
         });
+
     </script>
 
     <script>
@@ -694,6 +836,7 @@
 
         // Responsive fix biar pas resize posisi tetap bener
         window.addEventListener("resize", updateSlide);
+
     </script>
 </body>
 

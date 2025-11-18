@@ -11,11 +11,9 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil parameter pencarian dan filter dari request
         $search = $request->input('search');
         $status = $request->input('status');
 
-        // Ambil transaksi milik parent yang sedang login
         $transactions = Transaction::with(['booking.child'])
             ->whereHas('booking', function ($query) {
                 $query->where('parent_id', Auth::id());

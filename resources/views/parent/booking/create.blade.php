@@ -4,7 +4,7 @@
 
         <div class="card shadow-sm">
             <div class="card-body">
-                <form action="{{ route('parent.booking.store') }}" method="POST">
+                <form action="{{ route('parent.booking.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     {{-- 🧒 Pilih Anak --}}
                     <div class="mb-3">
@@ -12,7 +12,7 @@
                         <select name="child_id" class="form-select" required>
                             <option value="">-- Pilih Anak --</option>
                             @foreach($children as $child)
-                                <option value="{{ $child->id }}">{{ $child->name }}</option>
+                            <option value="{{ $child->id }}">{{ $child->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -27,17 +27,25 @@
                     <div class="mb-3">
                         <label class="form-label">Tipe Waktu Penitipan</label>
                         <select name="time_type" class="form-select" x-model="timeType" required>
-                            <option value="per_jam">Per Jam</option>
-                            <option value="per_hari">Per Hari</option>
-                            <option value="per_bulan">Per Bulan</option>
+                            <option value="per_jam">Per Jam (Rp. 50.000 / Jam)</option>
+                            <option value="per_hari">Per Hari (Rp. 200.000 / Hari )</option>
+                            <option value="per_bulan">Per Bulan (Rp. 2.250.000 / Bulan)</option>
                         </select>
                     </div>
 
                     {{-- ⌛ Input Durasi (muncul hanya jika per_jam) --}}
                     <div class="mb-3" x-show="timeType === 'per_jam'" x-transition>
                         <label class="form-label">Durasi (Jam)</label>
-                        <input type="number" name="duration" min="1" class="form-control" placeholder="Masukkan durasi jam penitipan">
+                        <input type="number" name="duration" min="1" class="form-control"
+                            placeholder="Masukkan durasi jam penitipan">
                     </div>
+
+                    {{-- 📸 Foto Anak --}}
+                    <div class="mb-3">
+                        <label class="form-label">Upload Foto Anak</label>
+                        <input type="file" name="child_photo" class="form-control" accept="image/*">
+                    </div>
+
 
                     {{-- 📝 Catatan --}}
                     <div class="mb-3">

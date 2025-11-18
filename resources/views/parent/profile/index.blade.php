@@ -4,18 +4,27 @@
         {{-- Header --}}
         <div class="card shadow-sm mb-4 border-0">
             <div class="card-body d-flex align-items-center">
-                <img src="{{ $user->photo ? asset('storage/' . $user->photo) : 'https://via.placeholder.com/100' }}"
-                    class="rounded-circle me-3" alt="Foto Profil" width="100" height="100">
+                @if ($user->photo)
+                <img src="{{ asset('storage/' . $user->photo) }}" class="rounded-circle me-3" alt="Foto Profil"
+                    width="100" height="100" style="object-fit: cover;">
+                @else
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                    style="width: 100px; height: 100px; font-size: 36px; font-weight: bold;">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </div>
+                @endif
+
                 <div class="flex-grow-1">
                     <h4 class="fw-bold mb-0">{{ $user->name }}</h4>
                     <p class="text-muted mb-1">
                         👩‍🦱 Parent | Member sejak:
                         {{ $user->member_since
-                            ? \Carbon\Carbon::parse($user->member_since)->translatedFormat('F Y')
-                            : $user->created_at->translatedFormat('F Y')
-                        }}
+                    ? \Carbon\Carbon::parse($user->member_since)->translatedFormat('F Y')
+                    : $user->created_at->translatedFormat('F Y')
+                }}
                     </p>
                 </div>
+
                 <a href="{{ route('parent.profile.edit') }}" class="btn btn-primary">
                     <i class="bi bi-pencil-square"></i> Edit Profil
                 </a>
@@ -54,17 +63,17 @@
             </div>
             <div class="card-body">
                 @if($user->children->isNotEmpty())
-                    <div class="list-group">
-                        @foreach ($user->children as $child)
-                            <div class="list-group-item">
-                                <h6 class="fw-bold mb-1">👶 {{ $child->name }}</h6>
-                                <p class="mb-1 text-muted">Usia: {{ $child->age ?? '-' }} tahun</p>
-                                <small class="text-success">Status: {{ $child->status ?? 'Terdaftar di PlayCare' }}</small>
-                            </div>
-                        @endforeach
+                <div class="list-group">
+                    @foreach ($user->children as $child)
+                    <div class="list-group-item">
+                        <h6 class="fw-bold mb-1">👶 {{ $child->name }}</h6>
+                        <p class="mb-1 text-muted">Usia: {{ $child->age ?? '-' }} tahun</p>
+                        <small class="text-success">Status: {{ $child->status ?? 'Terdaftar di PlayCare' }}</small>
                     </div>
+                    @endforeach
+                </div>
                 @else
-                    <p class="text-muted mb-0">Belum ada data anak yang terdaftar.</p>
+                <p class="text-muted mb-0">Belum ada data anak yang terdaftar.</p>
                 @endif
             </div>
         </div>
@@ -91,15 +100,16 @@
 
     {{-- ✅ Notifikasi Sukses --}}
     @if (session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                showConfirmButton: false,
-                timer: 1800
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 1800
+        });
+
+    </script>
     @endif
 
     {{-- ⚠️ Konfirmasi Logout --}}
@@ -120,5 +130,6 @@
                 }
             });
         });
+
     </script>
 </x-app-layout>

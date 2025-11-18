@@ -5,19 +5,30 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Staff;
+use App\Models\StaffSchedule;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
-    /**
-     * Tampilkan semua data staff
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $staffs = User::where('role', 'staff')->get();
-        return view('admin.data-staff.index', compact('staffs'));
+        $search = $request->input('search');
+
+        $staffs = User::with('staffSchedule')
+            ->where('role', 'staff')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->get();
+
+
+        return view('admin.data-staff.index', compact('staffs', 'search'));
     }
+
 
     /**
      * Tampilkan form tambah staff
@@ -36,18 +47,25 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|max:20',
-            'role' => 'nullable',
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255'
         ]);
 
-        User::create([
+        // 1. Simpan staff baru
+        $staff = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'staff',
             'phone' => $request->phone,
             'address' => $request->address,
+        ]);
+
+        // 2. Buat entry default di staff_schedules
+        StaffSchedule::create([
+            'staff_id' => $staff->id,
+            'booking_id' => null, // karena belum ada tugas
+            'status' => 'active', // default saat staff baru dibuat
         ]);
 
         return redirect()->route('admin.data-staff.index')->with('success', 'Staff berhasil ditambahkan!');
@@ -71,19 +89,25 @@ class StaffController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,email,' . $staff->id,
             'password' => 'nullable|string|max:20',
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255'
         ]);
 
-        $staff->update([
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password,
             'phone' => $request->phone,
             'address' => $request->address,
-        ]);
+        ];
+
+        // Update password hanya jika diisi
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        $staff->update($updateData);
 
         return redirect()->route('admin.data-staff.index')->with('success', 'Data staff berhasil diperbarui!');
     }

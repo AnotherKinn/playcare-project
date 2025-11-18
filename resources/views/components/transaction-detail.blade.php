@@ -3,10 +3,46 @@
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-body text-center px-4 py-3">
 
-                <!-- Icon success -->
-                <div class="bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
-                    <i class="bi bi-check-lg fs-4"></i>
+                @php
+                switch ($transaction->status) {
+                case 'success':
+                $icon = 'bi-check-lg';
+                $bgColor = 'bg-success';
+                $iconColor = 'text-white';
+                break;
+
+                case 'pending_verification':
+                $icon = 'bi-hourglass-split';
+                $bgColor = 'bg-warning';
+                $iconColor = 'text-dark';
+                break;
+
+                case 'pending':
+                $icon = 'bi-clock';
+                $bgColor = 'bg-info';
+                $iconColor = 'text-dark';
+                break;
+
+                case 'failed':
+                $icon = 'bi-x-lg';
+                $bgColor = 'bg-danger';
+                $iconColor = 'text-white';
+                break;
+
+                default:
+                $icon = 'bi-question-lg';
+                $bgColor = 'bg-secondary';
+                $iconColor = 'text-white';
+                break;
+                }
+                @endphp
+
+                <!-- Dynamic Icon -->
+                <div class="{{ $bgColor }} {{ $iconColor }} rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                    style="width: 55px; height: 55px;">
+                    <i class="bi {{ $icon }} fs-4"></i>
                 </div>
+
 
                 <h5 class="fw-bold mb-2">Detail Transaksi</h5>
                 <h3 class="fw-bold text-primary mb-4">Rp{{ number_format($transaction->amount, 0, ',', '.') }}</h3>
@@ -17,7 +53,8 @@
 
                     <div class="d-flex justify-content-between small mb-1">
                         <span>Tanggal Booking</span>
-                        <span class="fw-bold">{{ $transaction->booking->booking_date ? date('d M Y', strtotime($transaction->booking->booking_date)) : '-' }}</span>
+                        <span
+                            class="fw-bold">{{ $transaction->booking->booking_date ? date('d M Y', strtotime($transaction->booking->booking_date)) : '-' }}</span>
                     </div>
 
                     <div class="d-flex justify-content-between small mb-1">
@@ -29,20 +66,21 @@
                         <span>Tipe Waktu</span>
                         <span class="fw-bold">
                             @if($transaction->booking->time_type === 'per_jam')
-                                Per Jam
+                            Per Jam
                             @elseif($transaction->booking->time_type === 'per_hari')
-                                Per Hari
+                            Per Hari
                             @elseif($transaction->booking->time_type === 'per_bulan')
-                                Per Bulan
+                            Per Bulan
                             @else
-                                -
+                            -
                             @endif
                         </span>
                     </div>
 
                     <div class="d-flex justify-content-between small mb-1">
                         <span>Durasi</span>
-                        <span class="fw-bold">{{ $transaction->booking->duration ?? '' }} {{ $transaction->booking->time_type === 'per_jam' ? 'jam' : ($transaction->booking->time_type === 'per_hari' ? '1 hari' : 'bulan') }}</span>
+                        <span class="fw-bold">{{ $transaction->booking->duration ?? '' }}
+                            {{ $transaction->booking->time_type === 'per_jam' ? 'jam' : ($transaction->booking->time_type === 'per_hari' ? '1 hari' : 'bulan') }}</span>
                     </div>
                 </div>
 
@@ -68,15 +106,21 @@
                     <div class="d-flex justify-content-between small mb-1">
                         <span>Status</span>
                         <span class="fw-bold">
-                            <span class="badge bg-{{ $transaction->status === 'confirmed' ? 'success' : ($transaction->status === 'pending' ? 'warning' : 'danger') }}">
+                            <span class="badge bg-{{
+                                $transaction->status === 'success' ? 'success' :
+                                ($transaction->status === 'pending_verification' ? 'warning' :
+                                ($transaction->status === 'pending' ? 'info' : 'danger'))
+                            }}">
                                 {{ ucfirst($transaction->status) }}
                             </span>
+
                         </span>
                     </div>
 
                     <div class="d-flex justify-content-between small mb-1">
                         <span>Total Pembayaran</span>
-                        <span class="fw-bold text-primary">Rp{{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                        <span
+                            class="fw-bold text-primary">Rp{{ number_format($transaction->amount, 0, ',', '.') }}</span>
                     </div>
                 </div>
 

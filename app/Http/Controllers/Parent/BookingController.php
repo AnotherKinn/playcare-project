@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class BookingController extends Controller
 {
@@ -36,7 +37,15 @@ class BookingController extends Controller
             'booking_date' => 'required|date',
             'duration' => 'nullable|integer|min:1',
             'notes' => 'nullable|string',
+            'child_photo' => 'nullable|image|max:2048', // ➕ Tambahan validasi foto
         ]);
+
+        $photoPath = null;
+
+        if ($request->hasFile('child_photo')) {
+            $photoPath = $request->file('child_photo')->store('child_photos', 'public');
+        }
+
 
         // 💰 Tarif baru
         $perHourRate = 50000;
@@ -69,7 +78,9 @@ class BookingController extends Controller
             'notes' => $request->notes,
             'total_price' => $totalPrice,
             'status' => 'pending',
+            'child_photo' => $photoPath, // ➕ Tambahan
         ]);
+
 
         // 💳 Buat transaksi otomatis
         Transaction::create([
@@ -107,7 +118,18 @@ class BookingController extends Controller
             'booking_date' => 'required|date',
             'duration' => 'nullable|integer|min:1',
             'notes' => 'nullable|string',
+            'child_photo' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('child_photo')) {
+            // delete old file
+            if ($booking->child_photo && Storage::disk('public')->exists($booking->child_photo)) {
+                Storage::disk('public')->delete($booking->child_photo);
+            }
+
+            $booking->child_photo = $request->file('child_photo')->store('child_photos', 'public');
+        }
+
 
         // 💰 Tarif baru
         $perHourRate = 50000;
@@ -139,6 +161,8 @@ class BookingController extends Controller
             'total_price' => $totalPrice,
         ]);
 
+        $booking->save();
+        
         return redirect()->route('parent.booking.index')
             ->with('success', 'Booking berhasil diperbarui.');
     }

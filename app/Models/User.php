@@ -12,7 +12,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role', 'phone', 'address', 'phone', 'member_since'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'phone', 'address', 'member_since'];
 
     protected $hidden = ['password'];
 
@@ -39,5 +39,18 @@ class User extends Authenticatable
     public function transactions()
     {
         return $this->hasMany(Transaction::class, 'user_id');
+    }
+    public function staffSchedule()
+    {
+        return $this->hasOne(StaffSchedule::class, 'staff_id');
+    }
+    public function schedules()
+    {
+        return $this->hasMany(StaffSchedule::class, 'staff_id');
+    }
+
+    public function latestSchedule()
+    {
+        return $this->hasOne(StaffSchedule::class, 'staff_id')->latestOfMany();
     }
 }

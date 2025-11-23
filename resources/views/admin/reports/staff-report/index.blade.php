@@ -11,27 +11,25 @@
                         <th>Nama Staff</th>
                         <th>Nama Anak</th>
                         <th>Tanggal</th>
-                        <th>Aktivitas</th>
                         <th>Kondisi Anak</th>
                         <th>Makanan</th>
                         <th>Durasi Tidur</th>
                         <th>Catatan</th>
-                        <th>Status</th>
+                        {{-- <th>Status</th> --}}
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($staffReports as $index => $report)
+                    @forelse($childReport as $index => $report)
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $report->staff->name ?? '-' }}</td>
-                            <td>{{ $report->booking->child_name ?? '-' }}</td>
-                            <td>{{ $report->report_date->format('d M Y') }}</td>
-                            <td>{{ $report->activity ?? '-' }}</td>
-                            <td>{{ $report->child_condition_label }}</td>
-                            <td>{{ $report->meal ?? '-' }}</td>
-                            <td>{{ $report->sleep_duration ?? '-' }}</td>
-                            <td>{{ $report->notes ?? '-' }}</td>
-                            <td>
+                            <td>{{ $report->booking->child->name ?? '-' }}</td>
+                            <td>{{ $report->created_at->format('d M Y') }}</td>
+                            <td>{{ ucfirst($report->activities) ?? '-' }}</td>
+                            <td>{{ ucfirst($report->meals) ?? '-' }}</td>
+                            <td>{{ ucfirst($report->sleep) ?? '-' }}</td>
+                            <td>{{ ucfirst($report->notes) ?? '-' }}</td>
+                            {{-- <td>
                                 <span class="badge
                                     @if($report->status === 'CP') bg-success
                                     @elseif($report->status === 'NF') bg-warning
@@ -40,7 +38,7 @@
                                 ">
                                     {{ $report->status_label }}
                                 </span>
-                            </td>
+                            </td> --}}
                         </tr>
                     @empty
                         <tr>
@@ -53,18 +51,17 @@
 
         <!-- Mobile Card -->
         <div class="d-block d-md-none">
-            @forelse($staffReports as $index => $report)
+            @forelse($childReport as $index => $report)
                 <div class="card mb-3 shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">#{{ $index + 1 }} {{ $report->booking->child_name ?? '-' }}</h5>
                         <p><strong>Nama Staff:</strong> {{ $report->staff->name ?? '-' }}</p>
-                        <p><strong>Tanggal:</strong> {{ $report->report_date->format('d M Y') }}</p>
-                        <p><strong>Aktivitas Anak:</strong> {{ $report->activity ?? '-' }}</p>
+                        <p><strong>Tanggal:</strong> {{ $report->created_at->format('d M Y') }}</p>
                         <p><strong>Kondisi:</strong> {{ $report->child_condition_label }}</p>
                         <p><strong>Makanan:</strong> {{ $report->meal ?? '-' }}</p>
                         <p><strong>Durasi Tidur:</strong> {{ $report->sleep_duration ?? '-' }}</p>
                         <p><strong>Catatan:</strong> {{ $report->notes ?? '-' }}</p>
-                        <p><strong>Status:</strong> {{ $report->status_label }}</p>
+                       {{-- <p><strong>Status:</strong> {{ $report->status_label }}</p> --}}
                     </div>
                 </div>
             @empty

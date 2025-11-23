@@ -185,6 +185,30 @@
                 </button>
             </form>
         </div>
+
+        <!-- Modal QR Pembayaran DANA -->
+        {{-- <div class="modal fade" id="modalDana" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 shadow">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Bayar QRIS</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body text-center">
+                        <p class="text-muted mb-2">Silakan scan QR berikut untuk membayar</p>
+
+                        <img src="/mnt/data/7195b9f6-d7bc-4dbf-820d-81ac8ae9920c.png" alt="QRIS Dummy"
+                            class="img-fluid rounded" style="max-width: 250px;">
+
+                        <a href="{{ route('parent.transaction.index') }}" class="btn btn-primary fw-bold mt-4 w-100">
+        Oke, Saya Sudah Bayar
+        </a>
+    </div>
+    </div>
+    </div>
+    </div> --}}
+
     </div>
 </x-app-layout>
 
@@ -229,6 +253,83 @@
 
 </script>
 
+{{-- <script>
+    // Trigger modal ketika metode pembayaran = DANA
+    document.querySelector('#payment-form').addEventListener('submit', function (e) {
+        const method = document.querySelector('input[name="payment_method"]:checked')?.value;
+
+        if (method === 'dana') {
+            e.preventDefault(); // hentikan submit form
+            const modal = new bootstrap.Modal(document.getElementById('modalDana'));
+            modal.show();
+        }
+    });
+
+    // Versi mobile
+    document.querySelector('#payment-form-mobile').addEventListener('submit', function (e) {
+        const method = document.querySelector('input[name="payment_method"]:checked')?.value;
+
+        if (method === 'dana') {
+            e.preventDefault();
+            const modal = new bootstrap.Modal(document.getElementById('modalDana'));
+            modal.show();
+        }
+    });
+
+</script> --}}
+
+@if (session('success_payment'))
+<script>
+    const data = @json(session('success_payment'));
+
+    Swal.fire({
+            title: '<div style="text-align:center;">Pembayaran dengan ' + data.payment_method.toUpperCase() +
+                '</div>',
+            html: `
+        <div style="text-align:center;">
+            <p class="mb-2">Kode Transaksi: <strong>${data.kode_transaksi}</strong></p>
+            <p>Silakan scan QR berikut:</p>
+            <img src="${data.qr_base64}" style="max-width:220px; border-radius:10px; margin-top:10px; margin:auto;">
+        </div>
+    `,
+            confirmButtonText: 'Oke, Saya Sudah Bayar',
+            width: 400,
+        })
+        .then(() => {
+            window.location.href = "{{ route('parent.transaction.index') }}";
+        });
+
+</script>
+@endif
+
+@if (session('success_va'))
+<script>
+    const dataVA = @json(session('success_va'));
+
+    Swal.fire({
+        title: "Virtual Account",
+        html: `
+            <p>Silakan transfer ke nomor VA berikut:</p>
+            <h2 style="margin-top:10px; font-weight:bold">${dataVA.va}</h2>
+            <button id="okBtn" class="swal2-confirm swal2-styled" style="margin-top:20px; width:100%;">
+                Oke, Saya Sudah Transfer
+            </button>
+        `,
+        showConfirmButton: false,
+        width: 380,
+    });
+
+    document.addEventListener("click", function (e) {
+        if (e.target.id === "okBtn") {
+            window.location.href = "{{ route('parent.transaction.index') }}";
+        }
+    });
+</script>
+@endif
+
+
+
+
 @if (session('success'))
 <script>
     Swal.fire({
@@ -237,7 +338,19 @@
         text: "{{ session('success') }}",
         showConfirmButton: false,
         timer: 2000
-    });
+    })
+</script>
+@endif
 
+@if (session('success_cod'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: "{{ session('success') }}",
+        showConfirmButton: true,
+    }).then( () => {
+        window.location.href = "{{ route('parent.transaction.index') }}"
+    });
 </script>
 @endif

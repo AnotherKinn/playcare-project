@@ -38,9 +38,11 @@
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                     <li>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form id="formLogout" method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                            <button type="button" id="btnLogout" class="dropdown-item text-danger">
+                                Logout
+                            </button>
                         </form>
                     </li>
                 </ul>
@@ -48,3 +50,23 @@
         </div>
     </div>
 </nav>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('btnLogout').addEventListener('click', function() {
+        Swal.fire({
+            title: 'Yakin ingin logout?',
+            text: "Kamu akan keluar dari akun admin.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Logout!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('formLogout').submit();
+            }
+        });
+    });
+</script>

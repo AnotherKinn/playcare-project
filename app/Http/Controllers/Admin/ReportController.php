@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StaffReport;
 use App\Models\Review;
 use App\Models\IncomeReport;
+use App\Models\Report;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class ReportController extends Controller
     public function index()
     {
         // Hitung total laporan staff
-        $totalStaffReports = \App\Models\StaffReport::count();
+        $totalStaffReports = \App\Models\Report::count();
 
         // Hitung total review parent
         $totalParentReviews = \App\Models\Review::count();
@@ -37,9 +38,9 @@ class ReportController extends Controller
 
     public function indexStaffReport()
     {
-        $staffReports = StaffReport::with(['staff', 'booking'])->latest()->get();
+        $childReport = Report::with(['child', 'booking'])->latest()->get();
 
-        return view('admin.reports.staff-report.index', compact('staffReports'));
+        return view('admin.reports.staff-report.index', compact('childReport'));
     }
 
     public function indexParentReview()

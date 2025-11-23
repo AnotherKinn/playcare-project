@@ -135,6 +135,7 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
     Route::put('profile/{id}/update', [StaffProfileController::class, 'update'])->name('staff.profile.update');
 
     Route::get('notification', [StaffNotificationController::class, 'index'])->name('staff.notifications.index');
+    Route::get('notification/{id}', [StaffNotificationController::class, 'show'])->name('staff.notifications.show');
 });
 
 
@@ -160,6 +161,7 @@ Route::prefix('parent')->middleware(['auth', 'role:parent'])->group(function () 
 
     // CRUD Transactions
     Route::get('transaction', [ParentTransactionController::class, 'index'])->name('parent.transaction.index');
+    Route::get('/parent/transaction/{id}/qr-view', [ParentTransactionController::class, 'qrView'])->name('parent.transaction.qr-view');
 
     // CRUD Review
     Route::get('review', [ReviewController::class, 'index'])->name('parent.review.index');
@@ -179,6 +181,7 @@ Route::prefix('parent')->middleware(['auth', 'role:parent'])->group(function () 
     Route::post('payments/store', [PaymentsController::class, 'store'])->name('parent.payments.store');
     Route::get('/transactions/{id}/upload', [PaymentsController::class, 'uploadForm'])->name('parent.transaction.upload');
     Route::post('/transactions/{id}/upload', [PaymentsController::class, 'uploadStore'])->name('parent.transaction.upload.store');
+
 
     Route::get('/notifications', [ParentNotificationController::class, 'index'])->name('parent.notifications.index');
     Route::get('/notifications/{id}', [ParentNotificationController::class, 'show'])->name('parent.notifications.show');

@@ -40,7 +40,7 @@
                         <th>Aktivitas</th>
                         <th>Catatan</th>
                         <th>Tanggal</th>
-                        <th>Status Verifikasi</th>
+                        {{-- <th>Status Verifikasi</th> --}}
                         <th>Foto</th> {{-- dipindah ke sini --}}
                         <th>Aksi</th>
                     </tr>
@@ -55,13 +55,13 @@
                         <td>{{ Str::limit($report->activities, 50) }}</td>
                         <td>{{ $report->notes ?? '-' }}</td>
                         <td>{{ $report->created_at->format('d M Y') }}</td>
-                        <td>
+                        {{--   <td>
                             @if ($report->approved_at)
                             <span class="badge bg-success">Terverifikasi</span>
                             @else
                             <span class="badge bg-warning text-dark">Menunggu</span>
                             @endif
-                        </td>
+                        </td> --}}
                         <td>
                             @if ($report->photo_url)
                             <img src="{{ $report->photo_url }}" alt="Foto Aktivitas" width="80"
@@ -74,25 +74,21 @@
 
 
                         <td>
-                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
-                                data-bs-target="#previewLaporanModal" data-child="{{ $report->child->name ?? '-' }}"
-                                data-tanggal="{{ $report->created_at->format('d M Y') }}"
-                                data-meals="{{ $report->meals }}" data-sleep="{{ $report->sleep }}"
-                                data-activities="{{ $report->activities }}" data-notes="{{ $report->notes }}"
-                                data-photo="{{ $report->photo_url ?? '' }}">
-                                👁️ Preview
-                            </button>
-
                             <a href="{{ route('staff.report.edit', $report->id) }}" class="btn btn-sm btn-secondary">
-                                ✏️ Edit
+                                <i class="bi bi-pencil-square"></i>
                             </a>
-                            <form action="{{ route('staff.report.destroy', $report->id) }}" method="POST"
+
+                            <form id="deleteForm-{{ $report->id }}"
+                                action="{{ route('staff.report.destroy', $report->id) }}" method="POST"
                                 class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Hapus laporan ini?')">🗑️</button>
+                                <button type="button" class="btn btn-sm btn-danger btnDelete"
+                                    data-id="{{ $report->id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </form>
+
                         </td>
                     </tr>
                     @empty
@@ -197,5 +193,60 @@
 
     </script>
     @endpush
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // === SweetAlert Session Success ===
+            @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 1800
+            });
+            @endif
+
+            // === SweetAlert Session Error ===
+            @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan',
+                text: "{{ session('error') }}",
+                showConfirmButton: true
+            });
+            @endif
+
+
+            // === Konfirmasi Hapus Laporan ===
+            document.querySelectorAll('.btnDelete').forEach(button => {
+                button.addEventListener('click', function () {
+                    let id = this.getAttribute('data-id');
+                    let form = document.getElementById('deleteForm-' + id);
+
+                    Swal.fire({
+                        title: 'Hapus Laporan?',
+                        text: "Laporan ini akan dihapus permanen.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+        });
+
+    </script>
 
 </x-app-layout>

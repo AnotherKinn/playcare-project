@@ -2,63 +2,41 @@
     <div class="container py-4">
         <h3 class="fw-bold text-primary mb-4">📊 Laporan Admin</h3>
 
-        <div class="row g-4">
-            <!-- Staff Report Card -->
-            <div class="col-md-6 col-lg-3">
-                <a href="{{ route('admin.report.staff-report') }}" class="text-decoration-none">
-                    <div class="card shadow-sm h-100 border-start border-primary border-4">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="card-title text-primary">Staff Report</h5>
-                                    <p class="card-text">
-                                        Jumlah laporan: {{ $totalStaffReports }}
-                                    </p>
-                                </div>
-                                <i class="bi bi-clipboard-data fs-2 text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-            <!-- Parent Review Card -->
-            <div class="col-md-6 col-lg-3">
-                <a href="{{ route('admin.report.parent-review') }}" class="text-decoration-none">
-                    <div class="card shadow-sm h-100 border-start border-purple border-4">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="card-title text-purple">Parent Review</h5>
-                                    <p class="card-text">
-                                        Jumlah review: {{ $totalParentReviews }}
-                                    </p>
-                                </div>
-                                <i class="bi bi-chat-left-text fs-2 text-purple"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            {{-- 📘 Staff Report --}}
+            <a href="{{ route('admin.report.staff-report') }}"
+                class="rounded-2xl bg-blue-600 text-white shadow-soft-card p-6 flex items-center justify-between transition hover:shadow-xl">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Staff Report</h6>
+                    <h3 class="text-2xl font-extrabold">{{ $totalStaffReports }} laporan</h3>
+                </div>
+                <i class="bi bi-clipboard-data text-5xl opacity-80"></i>
+            </a>
 
-            <!-- Keuangan Card -->
-            <div class="col-md-6 col-lg-3">
-                <a href="{{ route('admin.report.income-report') }}" class="text-decoration-none">
-                    <div class="card shadow-sm h-100 border-start border-success border-4">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="card-title text-success">Keuangan</h5>
-                                    <p class="card-text">
-                                        Total pendapatan: Rp{{ number_format($totalIncome, 0, ',', '.') }}
-                                    </p>
-                                </div>
-                                <i class="bi bi-currency-dollar fs-2 text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            {{-- 💬 Parent Review --}}
+            <a href="{{ route('admin.report.parent-review') }}"
+                class="rounded-2xl bg-blue-400 text-white shadow-soft-card p-6 flex items-center justify-between transition hover:shadow-xl">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Parent Review</h6>
+                    <h3 class="text-2xl font-extrabold">{{ $totalParentReviews }} review</h3>
+                </div>
+                <i class="bi bi-chat-left-text text-5xl opacity-80"></i>
+            </a>
+
+            {{-- 💰 Keuangan --}}
+            <a href="{{ route('admin.report.income-report') }}"
+                class="rounded-2xl bg-green-600 text-white shadow-soft-card p-6 flex items-center justify-between transition hover:shadow-xl">
+                <div>
+                    <h6 class="font-semibold uppercase text-sm">Keuangan</h6>
+                    <h3 class="text-2xl font-extrabold">
+                        Rp {{ number_format($totalIncome, 0, ',', '.') }}
+                    </h3>
+                </div>
+                <i class="bi bi-currency-dollar text-5xl opacity-80"></i>
+            </a>
+
         </div>
+
     </div>
 </x-app-layout>

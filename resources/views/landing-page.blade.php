@@ -80,7 +80,7 @@
                 <!-- Logo -->
                 <a href="#" class="flex items-center gap-3 text-white">
                     <!-- simple SVG logo placeholder -->
-                    <img src="{{ asset('assets/images/logo-splash.png') }}" width="36" height="36" alt="">
+                    <img src="{{ asset('assets/images/logo-playcare.png') }}" width="60" height="60" alt="">
                     <span class="font-semibold text-xl">PlayCare</span>
                 </a>
 
@@ -457,12 +457,12 @@
     </section>
 
     <!-- Floating WhatsApp -->
-    <a href="https://wa.me/6289601184436" target="_blank"
+{{--    <a href="https://wa.me/6289601184436" target="_blank"
         class="fixed right-6 bottom-6 bg-[color:var(--pc-turquoise)] w-14 h-14 rounded-full flex items-center justify-center drop-shadow-lg"
         data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-delay="100">
         <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none">
             <path d="M21 12.1a9 9 0 1 0-2.6 6.1L21 21l-2.8-0.7A9 9 0 0 0 21 12.1z" fill="white" /></svg>
-    </a>
+    </a> --}}
 
     <!-- FAQ -->
     <section id="faq" class="py-16 bg-white" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="700">
@@ -540,7 +540,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-10">
                     <!-- Gunakan mx-auto untuk pusatkan horizontal -->
-                    <div id="map" style="height: 380px; border-radius: 14px; overflow: hidden;" class="mx-auto">
+                    <div id="map" style="height: 380px; border-radius: 14px; overflow: hidden; transform: scale(0.7);" class="mx-auto">
                     </div>
                 </div>
             </div>

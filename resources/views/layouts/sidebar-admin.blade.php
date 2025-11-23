@@ -2,10 +2,13 @@
 <!-- Sidebar versi Desktop -->
 <nav id="sidebarAdmin"
     class="d-none d-md-flex flex-column flex-shrink-0 p-3 bg-white border-end shadow-sm position-fixed"
-    style="width: 260px; min-height: 100vh; z-index: 1030;">
+    style="width: 265px; min-height: 100vh; z-index: 1030;">
     <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center mb-3 text-decoration-none">
-        <span class="fs-4 fw-bold text-primary">🛠️ PlayCare Admin</span>
+        <img src="{{ asset('assets/images/logo-playcare.png') }}" alt="PlayCare Logo" class="me-2"
+            style="height: 40px;">
+        <span class="fs-4 fw-bold text-primary">PlayCare Admin</span>
     </a>
+
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
 
@@ -17,10 +20,10 @@
             </a>
         </li>
 
-        {{-- Manajemen Booking --}}
+        {{-- Booking --}}
         <li>
             <a href="{{ route('admin.booking.index') }}"
-                class="nav-link {{ request()->routeIs('admin.bookings.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.booking.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-calendar-check me-2"></i> Booking
             </a>
         </li>
@@ -28,7 +31,7 @@
         {{-- Staff --}}
         <li>
             <a href="{{ route('admin.data-staff.index') }}"
-                class="nav-link {{ request()->routeIs('admin.staff.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.data-staff.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-person-badge me-2"></i> Staff
             </a>
         </li>
@@ -36,7 +39,7 @@
         {{-- Parent --}}
         <li>
             <a href="{{ route('admin.data-parent.index') }}"
-                class="nav-link {{ request()->routeIs('admin.parents.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.data-parent.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-people me-2"></i> Parent
             </a>
         </li>
@@ -44,7 +47,7 @@
         {{-- Transaksi --}}
         <li>
             <a href="{{ route('admin.transaction.index') }}"
-                class="nav-link {{ request()->routeIs('admin.transactions.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.transaction.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-wallet2 me-2"></i> Transaksi
             </a>
         </li>
@@ -52,11 +55,12 @@
         {{-- Laporan --}}
         <li>
             <a href="{{ route('admin.report.index') }}"
-                class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                class="nav-link {{ request()->routeIs('admin.report.*') ? 'active bg-primary text-white' : 'text-dark' }}">
                 <i class="bi bi-bar-chart-line me-2"></i> Laporan
             </a>
         </li>
     </ul>
+
 
     <hr class="mt-3 mb-2">
     <form method="POST" action="{{ route('logout') }}">
@@ -74,7 +78,11 @@
         data-bs-target="#offcanvasSidebarAdmin" aria-controls="offcanvasSidebarAdmin">
         <i class="bi bi-list fs-4"></i>
     </button>
-    <h5 class="fw-bold mb-0 text-primary">PlayCare Admin</h5>
+    <h5 class="fw-bold mb-0 text-primary d-flex align-items-center">
+        <img src="{{ asset('assets/images/logo-playcare.png') }}" alt="PlayCare Logo" class="me-2"
+            style="height: 28px;">
+        PlayCare Admin
+    </h5>
 </div>
 
 <!-- Spacer agar konten tidak ketutup navbar di mobile -->
@@ -91,23 +99,50 @@
     </div>
     <div class="offcanvas-body p-0">
         <ul class="nav nav-pills flex-column mb-auto px-3">
+
             <li class="nav-item">
                 <a href="{{ route('admin.dashboard') }}"
                     class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active bg-primary text-white' : 'text-dark' }}">
                     <i class="bi bi-house-door me-2"></i> Dashboard
                 </a>
             </li>
-            <li><a href="{{ route('admin.booking.index') }}" class="nav-link text-dark"><i
-                        class="bi bi-calendar-check me-2"></i> Booking</a></li>
-            <li><a href="{{ route('admin.data-staff.index')}}" class="nav-link text-dark"><i
-                        class="bi bi-person-badge me-2"></i> Staff</a></li>
-            <li><a href="{{ route('admin.data-parent.index') }}" class="nav-link text-dark"><i
-                        class="bi bi-people me-2"></i> Parent</a></li>
-            <li><a href="{{ route('admin.transaction.index')}}" class="nav-link text-dark"><i
-                        class="bi bi-wallet2 me-2"></i> Transaksi</a></li>
-            <li><a href="{{ route('admin.report.index') }}" class="nav-link text-dark"><i
-                        class="bi bi-bar-chart-line me-2"></i> Laporan</a></li>
+
+            <li>
+                <a href="{{ route('admin.booking.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.booking.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                    <i class="bi bi-calendar-check me-2"></i> Booking
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('admin.data-staff.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.data-staff.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                    <i class="bi bi-person-badge me-2"></i> Staff
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('admin.data-parent.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.data-parent.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                    <i class="bi bi-people me-2"></i> Parent
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('admin.transaction.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.transaction.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                    <i class="bi bi-wallet2 me-2"></i> Transaksi
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('admin.report.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.report.*') ? 'active bg-primary text-white' : 'text-dark' }}">
+                    <i class="bi bi-bar-chart-line me-2"></i> Laporan
+                </a>
+            </li>
         </ul>
+
 
         <hr class="mt-3 mb-2">
         <form method="POST" action="{{ route('logout') }}" class="px-3 mb-3">

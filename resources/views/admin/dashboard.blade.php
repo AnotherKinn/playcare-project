@@ -63,7 +63,6 @@
                                 <th class="px-4 py-3 text-left font-semibold text-gray-700">Parent</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-700">Tanggal</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                                <th class="px-4 py-3 text-left font-semibold text-gray-700">Staff</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -97,7 +96,6 @@
                                         class="inline-block px-3 py-1 rounded-full text-red-800 bg-red-100 font-semibold text-xs">Dibatalkan</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3">{{ $b->assignedStaff->name ?? '-' }}</td>
                             </tr>
                             @endforeach
                         </tbody>

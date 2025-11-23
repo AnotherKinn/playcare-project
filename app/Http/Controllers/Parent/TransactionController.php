@@ -31,4 +31,14 @@ class TransactionController extends Controller
 
         return view('parent.transaction.index', compact('transactions', 'search', 'status'));
     }
+
+    public function qrView($id)
+    {
+        $transaction = Transaction::with(['booking.child', 'booking.parent'])->findOrFail($id);
+
+        return view('parent.transaction.qr-view', [
+            'transaction' => $transaction,
+            'booking' => $transaction->booking,
+        ]);
+    }
 }

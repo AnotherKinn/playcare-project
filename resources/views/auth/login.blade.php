@@ -25,8 +25,9 @@
     <div class="hidden md:flex w-1/2 gradient-bg items-center justify-center relative overflow-hidden">
         <div class="absolute inset-0 bg-[url('https://i.pinimg.com/1200x/90/92/51/909251d428c5c1ab4de627aef0b8db75.jpg')] bg-cover bg-center opacity-20"></div>
         <div class="relative z-10 text-center text-white p-10">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+            <img src="{{ asset('assets/images/logo-playcare.png') }}"
                 alt="PlayCare Logo"
+                style="transform: scale(1.3);"
                 class="mx-auto w-32 h-32 mb-6 rounded-full border-4 border-white shadow-lg object-cover">
             <h1 class="text-4xl font-extrabold tracking-tight">Selamat Datang di <span class="text-white">PlayCare</span></h1>
             <p class="mt-4 text-lg font-light max-w-md mx-auto">Platform yang membantu orang tua memantau aktivitas anak dengan mudah dan menyenangkan.</p>

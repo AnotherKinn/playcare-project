@@ -196,6 +196,12 @@ class BookingController extends Controller
             ]);
         }
 
+        Notification::create([
+            'user_id' => $request->staff_id,
+            'booking_id' => $booking->id,
+            'type_notification' => 'assigned_staff',
+        ]);
+
         event(new StaffAssigned($booking, Auth::user()->name));
 
         return redirect()->route('admin.booking.index')->with('success', 'Staff berhasil ditugaskan!');

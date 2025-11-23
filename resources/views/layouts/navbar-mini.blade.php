@@ -42,9 +42,14 @@
                         <hr class="dropdown-divider">
                     </li>
                     <li>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form id="formLogoutParent" method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                        </form>
+
+                        <button type="button" class="dropdown-item text-danger btnLogoutParent">
+                            Logout
+                        </button>
+
                         </form>
                     </li>
                 </ul>
@@ -52,3 +57,35 @@
         </div>
     </div>
 </nav>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const logoutBtn = document.querySelector('.btnLogoutParent');
+        const logoutForm = document.getElementById('formLogoutParent');
+
+        if (logoutBtn && logoutForm) {
+            logoutBtn.addEventListener('click', function () {
+
+                Swal.fire({
+                    title: "Logout?",
+                    text: "Anda yakin ingin keluar dari akun orang tua?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Logout",
+                    cancelButtonText: "Batal",
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#6c757d"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        logoutForm.submit();
+                    }
+                });
+
+            });
+        }
+    });
+
+</script>

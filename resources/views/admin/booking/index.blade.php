@@ -78,7 +78,7 @@
                         <th>#</th>
                         <th>Nama Parent</th>
                         <th>Nama Anak</th>
-                        {{-- <th>Foto Anak</th> --}}
+                        <th>Foto Anak</th>
                         <th>Tanggal Booking</th>
                         <th>Tipe Waktu Penitipan</th>
                         <th>Status</th>
@@ -104,17 +104,17 @@
                         <td>{{ $bookings->firstItem() + $i }}</td>
                         <td>{{ $b->parent->name ?? '-' }}</td>
                         <td>{{ $b->child->name ?? '-' }}</td>
-                        {{-- <td>
-                            @if ($b->child && $b->child->child_photo)
+                        <td>
+                            @if ($b->child && $b->child_photo)
                             <button class="btn btn-sm btn-warning btn-photo-child" data-bs-toggle="modal"
-                                data-bs-target="#modalFotoAnak" data-img="{{ Storage::url($b->child->child_photo) }}">
+                                data-bs-target="#modalFotoAnak" data-img="{{ Storage::url($b->child_photo) }}">
                                 Lihat Foto
                             </button>
                             @else
                             <span class="text-muted">Tidak ada</span>
                             @endif
                         </td>
---}}
+
                         <td>{{ $b->booking_date->format('Y-m-d') }}</td>
                         @if($b->time_type === 'per_hari')
                         <td>Sehari</td>
@@ -200,12 +200,16 @@
                     <h5 class="modal-title" id="fotoAnakLabel">Foto Anak</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <img id="fotoAnakPreview" src="" alt="Foto Anak" class="img-fluid rounded shadow">
+
+                <div class="modal-body d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                    <img id="fotoAnakPreview" src="" alt="Foto Anak" class="img-fluid rounded shadow"
+                        style="max-height: 90%; object-fit: contain;">
                 </div>
+
             </div>
         </div>
     </div>
+
 </x-app-layout>
 
 {{-- SweetAlert2 --}}

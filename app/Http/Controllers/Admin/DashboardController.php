@@ -44,7 +44,7 @@ class DashboardController extends Controller
         }
 
         // === 4. Booking terbaru ===
-        $bookingTerbaru = Booking::with(['parent:id,name', 'assignedStaff:id,name'])
+        $bookingTerbaru = Booking::with(['parent:id,name', 'assignedStaff'])
             ->latest()
             ->take(5)
             ->get();

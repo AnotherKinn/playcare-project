@@ -9,7 +9,7 @@
                 </h3>
                 <p class="text-muted mb-0">Semoga harimu menyenangkan di PlayCare 💙</p>
             </div>
-            <a href="#" class="btn btn-primary btn-lg shadow-sm">
+            <a href="{{ route('staff.task.index') }}" class="btn btn-primary btn-lg shadow-sm">
                 📋 Tugas Hari Ini
             </a>
         </div>

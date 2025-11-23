@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Models\Booking;
 use App\Models\Child;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -90,6 +91,12 @@ class ReportController extends Controller
         }
 
         $report->save();
+
+        Notification::create([
+            'user_id' => Auth::id(),
+            'booking_id' => $booking->id,
+            'type_notification' => 'report_child'
+        ]);
 
         // ✅ Trigger Event untuk admin
         event(new ChildReportSubmitted($report));

@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Notification;
 use App\Models\Transaction;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -43,12 +46,11 @@ class PaymentsController extends Controller
             'payment_method' => 'required|in:cod,dana,bca,mandiri',
         ]);
 
-        // Ambil booking terkait dan pastikan milik parent yang login
         $booking = Booking::with('child')
             ->where('parent_id', Auth::id())
             ->findOrFail($request->booking_id);
 
-        // Ambil atau buat transaksi pending
+        // Ambil atau buat transaksi
         $transaction = Transaction::firstOrCreate(
             ['booking_id' => $booking->id],
             [
@@ -57,30 +59,100 @@ class PaymentsController extends Controller
             ]
         );
 
-        // Generate kode transaksi unik
+        // Generate kode transaksi
         $lastId = Transaction::max('id') ?? 0;
         $transactionCode = 'TRX' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+
+        /**
+         * ===============================
+         * 🔥 Jika metode BANK → Generate VA
+         * ===============================
+         */
+        $vaNumber = null;
+        if (in_array($request->payment_method, ['bca', 'mandiri'])) {
+            $vaNumber = $this->generateVaNumber();
+        }
+
+        /**
+         * ===================================
+         * 🔥 Jika metode DANA → Generate QRIS
+         * ===================================
+         */
+        $qrBase64 = null;
+
+        if ($request->payment_method === 'dana') {
+            $paymentUrl = route('parent.transaction.qr-view', $transaction->id);
+
+            $qr = (new Builder(writer: new PngWriter()))
+                ->build(
+                    data: $paymentUrl,
+                    size: 300,
+                    margin: 10
+                );
+
+            $qrBase64 = $qr->getDataUri();
+        }
 
         // Update transaksi
         $transaction->update([
             'transaction_code' => $transactionCode,
             'payment_method' => $request->payment_method,
+            'virtual_account' => $vaNumber,
             'status' => 'pending',
             'notes' => $request->notes,
         ]);
 
-        // 🔔 Buat notifikasi baru untuk parent
+        // Simpan notifikasi
         Notification::create([
             'user_id' => Auth::id(),
             'booking_id' => $booking->id,
             'transaction_id' => $transaction->id,
-            'type_notification' => 'information', // tipe notifikasi
+            'type_notification' => 'information',
         ]);
 
+        /**
+         * ===================================
+         * 🔥 Redirect dan kirim session sesuai metode
+         * ===================================
+         */
+
+        // Jika BANK → tampilkan VA dummy
+        if ($vaNumber) {
+            return redirect()
+                ->route('parent.payments.create', ['booking_id' => $booking->id])
+                ->with('success_va', [
+                    'payment_method' => $request->payment_method,
+                    'kode_transaksi' => $transaction->transaction_code,
+                    'va' => $vaNumber,
+                ]);
+        }
+
+        // Jika DANA → tampilkan QR
+        if ($request->payment_method === 'dana') {
+            return redirect()
+                ->route('parent.payments.create', ['booking_id' => $booking->id])
+                ->with('success_payment', [
+                    'payment_method' => $request->payment_method,
+                    'kode_transaksi' => $transaction->transaction_code,
+                    'qr_base64' => $qrBase64,
+                ]);
+        }
+
+        // COD → tanpa apa-apa
         return redirect()
-            ->route('parent.booking.index')
-            ->with('success', 'Pembayaran berhasil dilakukan, silahkan upload detail pembayaran!');
+            ->route('parent.payments.create', ['booking_id' => $booking->id])
+            ->with('success_cod', "Booking berhasil dipesan, jangan lupa upload bukti pembayaran ya");
     }
+
+    /**
+     * Generate 16 digit VA Dummy
+     */
+    private function generateVaNumber()
+    {
+        return '9' . str_pad(rand(0, 999999999999999), 15, '0', STR_PAD_LEFT);
+    }
+
+
 
     /**
      * 🧾 Form Upload Bukti Pembayaran
@@ -113,7 +185,7 @@ class PaymentsController extends Controller
         ]);
 
         event(new PaymentUploaded($transaction));
-        Log::info('✅ Event PaymentUploaded dikirim untuk transaksi ID: '.$transaction->id);
+        Log::info('✅ Event PaymentUploaded dikirim untuk transaksi ID: ' . $transaction->id);
 
         return redirect()->route('parent.notifications.index')->with('success', 'Bukti pembayaran berhasil diupload!');
     }

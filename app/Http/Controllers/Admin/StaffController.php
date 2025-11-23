@@ -92,9 +92,11 @@ class StaffController extends Controller
             'email' => 'required|email|unique:users,email,' . $staff->id,
             'password' => 'nullable|string|max:20',
             'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:255'
+            'address' => 'required|string|max:255',
+            'status' => 'required|in:active,non-active'
         ]);
 
+        // Update data user
         $updateData = [
             'name' => $request->name,
             'email' => $request->email,
@@ -102,15 +104,33 @@ class StaffController extends Controller
             'address' => $request->address,
         ];
 
-        // Update password hanya jika diisi
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->password);
         }
 
         $staff->update($updateData);
 
-        return redirect()->route('admin.data-staff.index')->with('success', 'Data staff berhasil diperbarui!');
+        // === UPDATE STATUS DI STAFF SCHEDULE ===
+        $schedule = StaffSchedule::where('staff_id', $staff->id)->first();
+
+        if ($schedule) {
+            // update schedule yang sudah ada
+            $schedule->update([
+                'status' => $request->status,
+            ]);
+        } else {
+            // kalau schedule belum ada, buat baru
+            StaffSchedule::create([
+                'staff_id' => $staff->id,
+                'booking_id' => null,
+                'status' => $request->status
+            ]);
+        }
+
+        return redirect()->route('admin.data-staff.index')
+            ->with('success', 'Data staff berhasil diperbarui!');
     }
+
 
     /**
      * Hapus data staff

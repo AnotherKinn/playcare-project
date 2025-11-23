@@ -66,7 +66,7 @@
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select">
                                 <option value="active" {{ $staff->status === 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="disabled" {{ $staff->status === 'disabled' ? 'selected' : '' }}>Disabled</option>
+                                <option value="non-active" {{ $staff->status === 'non-active' ? 'selected' : '' }}>Non-Active</option>
                             </select>
                         </div>
 

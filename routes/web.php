@@ -107,6 +107,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 
     Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])
         ->name('admin.notifications.destroy');
+
+    Route::get('/reports/income/export', [\App\Http\Controllers\Admin\IncomeReportController::class, 'exportPdf'])
+    ->name('admin.reports.income.export');
+
 });
 
 

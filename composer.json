@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.2",
         "arcanedev/log-viewer": "^11.0",
+        "barryvdh/laravel-dompdf": "^3.1",
         "endroid/qr-code": "^6.0",
         "laravel/breeze": "^2.3",
         "laravel/framework": "^11.0",

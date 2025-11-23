@@ -2,6 +2,10 @@
     <div class="container py-4">
         <h3 class="fw-bold text-purple mb-4">💰 Laporan Keuangan</h3>
 
+        <a href="{{ route('admin.reports.income.export') }}" class="btn btn-danger mb-10">
+            📄 Export PDF
+        </a>
+
         {{-- ====== 3 CARD SUMMARY ====== --}}
         <div class="row mb-4">
             <div class="col-md-4">
@@ -44,7 +48,7 @@
                     <tr>
                         <th>No</th>
                         <th>Parent</th>
-                        {{-- <th>Nama Anak</th> --}} <th>Jumlah</th>
+                        <th>Jumlah</th>
                         <th>Status</th>
                         <th>Tanggal Pembayaran</th>
                     </tr>
